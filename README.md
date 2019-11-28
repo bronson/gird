@@ -7,14 +7,14 @@ Runing this script generates hashes for every file in a directory tree.
 Later, when you can check these hashes, you can verify that the contents of
 the files are identical to when you girded them.
 
-# Installation
+## Installation
 
 Copy the `gird` file somewhere on your path.
 
-# Usage
+## Usage
 
-```
-$ gird Photos
+```bash
+gird Photos
 ```
 
 Creates a .sha1sums file containing the SHA for each file in Photos.
@@ -22,12 +22,12 @@ It then operates recursively on all subdirectories.
 
 Running 'gird' operates on the current directory, identical to typing 'gird .'
 
-# Testing
+## Testing
 
 Run `./gird test` in the home directory.
 If git shows no differences, then gird worked.
 
-# Motivation
+## Motivation
 
 I'm backing up my files to two separate places: local external drive, and cloud.
 If those backups ever disagree, gird allows me to see which file is correct and
@@ -45,7 +45,7 @@ _Doesn't ZFS already have checksumming?_
 
 Yes. But it doesn't hurt to double-check. Gird is a narrow set of suspenders in your belt-and-suspenders setup.
 
-# Thoughts
+## Thoughts
 
 This script is intended to protect against driver bugs and cosmic
 rays. Cryptographic integrity is not a design goal.
