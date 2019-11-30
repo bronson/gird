@@ -22,28 +22,23 @@ It then operates recursively on all subdirectories.
 
 Running 'gird' operates on the current directory, identical to typing 'gird .'
 
-## Testing
-
-Run `./gird test` in the home directory.
-If git shows no differences, then gird worked.
-
 ## Motivation
 
 I'm backing up my files to two separate places: local external drive, and cloud.
 If those backups ever disagree, gird allows me to see which file is correct and
 which one is corrupted.
 
-20 years ago I moved my mp3 collection to XFS. Heard the occasional minor glitch
-but I figured it was typical scheduler issues. Turns out XFS had randomly inserted
+20 years ago I moved my mp3 collection to XFS. There was an occasional minor glitch
+during playback, figured it was scheduler/buffer issues. It turns out XFS had randomly inserted
 strings of null bytes into some of my files and, because I had gotten rid of my
 non-xfs backup and the original CDs, the glitches are now permament.
 
 Gird would have warned me that my files were being slowly corrupted before erasing
-my backup9s.
+my backups.
 
 _Doesn't ZFS already have checksumming?_
 
-Yes. But it doesn't hurt to double-check. Gird is a narrow set of suspenders in your belt-and-suspenders setup.
+Yes, but second opinions are useful. Gird is a narrow set of suspenders in your belt-and-suspenders setup.
 
 ## Thoughts
 
