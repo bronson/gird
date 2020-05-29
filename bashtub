@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+
+shopt -s expand_aliases
+
+declare -i TEST_CASE_COUNT=0
+declare -a FAILED_CASES=()
+declare -a FAILURE_LOCATIONS=()
+declare -a FAILURE_REASONS=()
+
+to_sentence() {
+  declare space_separated
+  space_separated=${1#testcase_}
+  space_separated=${space_separated//_/ }
+  echo "$(tr '[:lower:]' '[:upper:]' <<< ${space_separated:0:1})${space_separated:1}"
+}
+
+assert_equal_matcher() {
+  echo "\`$1' expected but was \`$2'"
+  [[ "$1" == "$2" ]]
+}
+
+assert_match_matcher() {
+  echo "\`$2' was expected to match \`$1'"
+  [[ "$2" =~ $1 ]]
+}
+
+assert_true_matcher() {
+  echo "\`$*' was expected to return true"
+  subject "$@"
+  [[ $status -eq 0 ]]
+}
+
+assert_false_matcher() {
+  echo "\`$*' was expected to return false"
+  subject "$@"
+  [[ $status -ne 0 ]]
+}
+
+located_assertion_base() {
+  declare location case_name matcher
+  location="$1:$2:in \`$3'"
+  case_name=$(to_sentence "$3")
+  matcher=$4
+  shift 4;
+
+  TEST_CASE_COUNT+=1
+  reason=$($matcher "$@")
+  if [[ $? -eq 0 ]]; then
+    echo -n $'\e[32m.\e[m'
+  else
+    echo -n $'\e[31mF\e[m'
+    FAILED_CASES+=("$case_name")
+    FAILURE_LOCATIONS+=("$location")
+    FAILURE_REASONS+=("$reason")
+  fi
+}
+
+subject() {
+  eval "$({ err=$({ out=$(eval $@); sta=$?; } 2>&1; declare -p out sta >&2); declare -p err; } 2>&1)"
+  stdout="$out" stderr="$err" status="$sta"
+}
+
+print_result() {
+  echo -e '\n'
+
+  if [[ ${#FAILED_CASES[@]} -eq 0 ]]; then
+    echo "$TEST_CASE_COUNT examples, 0 failures"
+    return 0
+  else
+    echo "Failures:"
+    for ((i = 0; i < ${#FAILED_CASES[@]}; ++i)) {
+      echo "$((i + 1))) ${FAILED_CASES[$i]}"
+      echo -n $'\e[31m'
+      echo "    ${FAILURE_LOCATIONS[$i]}"
+      echo "    ${FAILURE_REASONS[$i]}"
+      echo -n $'\e[m'
+    }
+    echo
+    echo -n $'\e[31m'
+    echo "$TEST_CASE_COUNT examples, ${#FAILED_CASES[@]} failures"
+    echo -n $'\e[m'
+    return 1
+  fi
+}
+
+declare_assertions() {
+  local matcher
+  for matcher in $(compgen -A function | grep '_matcher$'); do
+    aliased_id=${matcher%_matcher}
+    alias $aliased_id='located_assertion_base $BASH_SOURCE $LINENO $FUNCNAME '"$matcher"
+  done
+}
+
+help_and_exit() {
+  echo "\
+Usage: $0 [OPTION]... SOURCE_FILE...
+Run a unit-test from SOURCE_FILE(s).
+
+    --help     display this help and exit
+    --version  output version information and exit"
+  exit 0
+}
+
+version_and_exit() {
+  echo "bashtub 0.2"
+  exit 0
+}
+
+unrecognized_option_and_exit() {
+  echo "\
+$0: unrecognized option -- \`$1'
+Try \`$0 --help' for more information." >&2
+  exit 1
+}
+
+for param in "$@"; do
+  case $param in
+  --help) help_and_exit;;
+  --version) version_and_exit;;
+  --*) unrecognized_option_and_exit "${param#--}" ;;
+  -*) unrecognized_option_and_exit "${param#-}" ;;
+  *) break ;;
+  esac
+  shift
+done
+
+declare_assertions
+
+logfile=$(mktemp -t tmp.XXXXXX)
+exec 3>$logfile
+
+for f in "$@"; do
+  ( source "$f"
+    declare -f setup 2>/dev/null && {
+      echo "setup is no longer supported in feature versions." >/dev/stderr
+      echo "Use before_each of before_all" >/dev/stderr
+      setup
+    }
+    declare -f before_all 2>/dev/null && before_all
+    for testcase in $(compgen -A function | grep '^testcase_'); do
+      ( source $logfile
+        declare -f before_each 2>/dev/null && before_each
+        $testcase
+        declare -f after_each 2>/dev/null && after_each
+        declare -p FAILED_CASES FAILURE_LOCATIONS FAILURE_REASONS TEST_CASE_COUNT >&3
+      )
+    done
+    declare -f after_all 2>/dev/null && after_all
+    declare -f teardown 2>/dev/null && {
+      echo "teardown is no longer supported in feature versions." >/dev/stderr
+      echo "Use after_each of after_all" >/dev/stderr
+      teardown
+    }
+    true
+  )
+done
+
+source $logfile
+rm $logfile
+exec 3>&-
+
+print_result
