@@ -42,6 +42,7 @@ It then operates recursively on all subdirectories.
 
 ## TODO
 
+* Testing will be important. Find a tight bash test framework.
 * How should Gird handle hidden files and directories?  (right now it ignores them)
 * Show progress: what directory we're in
   * gird --verbose and gird --silent
