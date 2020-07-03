@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# See https://github.com/ueokande/bashtub
+
 shopt -s expand_aliases
 
 declare -i TEST_CASE_COUNT=0

@@ -25,9 +25,14 @@ To generate checksums:
 gird Photos
 ```
 
-If there's no .sha1sums file in a directory, Gird creates one.
+This creates a .sha1sums file containing the SHA for each file in Photos.
+It then operates recursively on all subdirectories, sorted alphabetically.
 
-Running 'gird' without arguments selectes the current directory, identical to typing 'gird .'
+Running 'gird' without arguments selectes the current directory, identical to typing `gird .`
+
+```bash
+gird
+```
 
 To verify checksums, run same command:
 
@@ -35,14 +40,16 @@ To verify checksums, run same command:
 gird Photos
 ```
 
-When there's a .sha1sums file in the first directory gir
+Gird automatically decides whether it's adding or verifying checksums by the presences of a .sha1sums file in the first directory it processes.
 
-Creates a .sha1sums file containing the SHA for each file in Photos.
-It then operates recursively on all subdirectories.
+To run tests, run
+
+```bash
+./test.sh
+```
 
 ## TODO
 
-* Testing will be important. Find a tight bash test framework.
 * How should Gird handle hidden files and directories?  (right now it ignores them)
 * Show progress: what directory we're in
   * gird --verbose and gird --silent
@@ -51,6 +58,7 @@ It then operates recursively on all subdirectories.
 * Add explicit arguments for gird --add and gird --verify
   * Also add a --force to tell add and verify to keep processing even if you see inconsistencies
 * Add a -j option to fork multiple jobs?
+* make installation easier/better/more explicit
 * Consider using Blake https://blake2.net. It's fast!
 
 ## Motivation
