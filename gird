@@ -22,10 +22,7 @@
 # TODO: test whitespace in folder and file names
 
 gird_directory () {
-  # TODO: sort directories before processing!
-  # can add a `sort -z` here, or maybe use `ls`
-  # or maybe `for i in `ls -v *.fas`; do`
-  find . -type f -maxdepth 1 -not -path '*/\.*' -not -name Girdsums -print0 | xargs -0 shasum -a 1 > Girdsums
+  find . -type f -maxdepth 1 -not -path '*/\.*' -not -name Girdsums -print0 | sort -z | xargs -0 shasum -a 1 > Girdsums
 }
 export -f gird_directory
 
