@@ -17,6 +17,17 @@ Don't use this repo yet
 
 Copy the `gird` file somewhere on your path.
 
+## Testing
+
+Using [Sharness](https://github.com/chriscool/sharness).
+
+To run tests:
+
+```bash
+cd t
+make
+```
+
 ## Usage
 
 To generate checksums:
@@ -42,25 +53,6 @@ gird Photos
 
 Gird automatically decides whether it's adding or verifying checksums by the presences of a .sha1sums file in the first directory it processes.
 
-To run tests, run
-
-```bash
-./test.sh
-```
-
-## TODO
-
-* How should Gird handle hidden files and directories?  (right now it ignores them)
-* Show progress: what directory we're in
-  * gird --verbose and gird --silent
-* .sha1sums is probably not a good name. Call it Girdfile?
-  * If so, we can also stick other data and comments in the file.
-* Add explicit arguments for gird --add and gird --verify
-  * Also add a --force to tell add and verify to keep processing even if you see inconsistencies
-* Add a -j option to fork multiple jobs?
-* make installation easier/better/more explicit
-* Consider using Blake https://blake2.net. It's fast!
-
 ## Motivation
 
 I'm backing up my files to a number of places: local drive, offsite USB drive, and cloud.
@@ -83,7 +75,7 @@ Yes, if you can use it. But second opinions are always useful. Gird is a narrow 
 
 _Isn't this basically what Git does?_
 
-Yes, and DAGs are awesome. Git, however, also copies the full contents of all the files. Gird is meant for environments where
+I suppose. DAGs are awesome. Git also copies the full contents of all the files. Gird is meant for environments where
 files are gigantic and backups are offsite.
 
 ## Licese
@@ -97,3 +89,16 @@ rays. Cryptographic integrity is _not_ a design goal.
 
 It uses sha1 because, at least on my computers, it's significantly faster than all other algorithms,
 including md5 and cksum.
+
+## TODO
+
+* How should Gird handle hidden files and directories?  (right now it ignores them)
+* Show progress: what directory we're in
+  * gird --verbose and gird --silent
+* .sha1sums is probably not a good name. Call it Girdfile?
+  * If so, we can also stick other data and comments in the file.
+* Add explicit arguments for gird --add and gird --verify
+  * Also add a --force to tell add and verify to keep processing even if you see inconsistencies
+* Add a -j option to fork multiple jobs?
+* make installation easier/better/more explicit
+* Consider using Blake https://blake2.net. It's fast!
