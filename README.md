@@ -92,6 +92,7 @@ including md5 and cksum.
 
 ## TODO
 
+* Test whitespace in file and folder names
 * How should Gird handle hidden files and directories?  (right now it ignores them)
 * Show progress: what directory we're in
   * gird --verbose and gird --silent

@@ -20,13 +20,12 @@
 
 
 # TODO: test whitespace in folder and file names
-# TODO: support a -j option to fork multiple processes?
 
 gird_directory () {
   # TODO: sort directories before processing!
   # can add a `sort -z` here, or maybe use `ls`
   # or maybe `for i in `ls -v *.fas`; do`
-  find . -type f -maxdepth 1 -not -path '*/\.*' -print0 | xargs -0 shasum -a 1 > .sha1sums
+  find . -type f -maxdepth 1 -not -path '*/\.*' -not -name Girdsums -print0 | xargs -0 shasum -a 1 > Girdsums
 }
 export -f gird_directory
 
