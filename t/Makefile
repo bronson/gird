@@ -58,3 +58,7 @@ aggregate-results:
 
 .PHONY: all test prove $(T) pre-clean clean
 .PHONY: aggregate-results-and-cleanup aggregate-results
+
+watch:
+	date; prove *.t
+	fswatch -or ../gird *.t fixtures | xargs -n1 -I{} sh -c 'date; prove *.t'
