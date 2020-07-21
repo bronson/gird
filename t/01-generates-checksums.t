@@ -22,4 +22,12 @@ test_expect_success "Running in empty dir" "
   rm tt Girdsums
 "
 
+test_expect_success "Processes hidden files" "
+  touch .hidden &&
+  gird &&
+  echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  ./.hidden\" > tt &&
+  test_cmp tt Girdsums &&
+  rm .hidden tt Girdsums
+"
+
 test_done
