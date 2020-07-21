@@ -92,7 +92,6 @@ including md5 and cksum.
 
 ## TODO
 
-* Test whitespace in file and folder names
 * How should Gird handle hidden files and directories?  (right now it ignores them)
 * Show progress: what directory we're in
   * gird --verbose and gird --silent
@@ -103,3 +102,4 @@ including md5 and cksum.
 * Add a -j option to fork multiple jobs?
 * make installation easier/better/more explicit
 * Consider using Blake https://blake2.net. It's fast!
+* Check on differences between sharness and git. Does Git suffer the same issues?
