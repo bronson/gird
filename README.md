@@ -95,11 +95,10 @@ including md5 and cksum.
 * How should Gird handle hidden files and directories?  (right now it ignores them)
 * Show progress: what directory we're in
   * gird --verbose and gird --silent
-* .sha1sums is probably not a good name. Call it Girdfile?
-  * If so, we can also stick other data and comments in the file.
 * Add explicit arguments for gird --add and gird --verify
   * Also add a --force to tell add and verify to keep processing even if you see inconsistencies
 * Add a -j option to fork multiple jobs?
-* make installation easier/better/more explicit
 * Consider using Blake https://blake2.net. It's fast!
-* Check on differences between sharness and git. Does Git suffer the same issues?
+* Check on differences between sharness and git (heredoc/process substitution issues).
+  * Does Git suffer the same issues or is it just sharness?
+* make installation easier/better/more explicit
