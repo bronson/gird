@@ -24,4 +24,4 @@ gird_directory () {
 export -f gird_directory
 
 find "${1:-.}" -type d -not -path '*/\.*' -print0 |
-  xargs -0 -n1 -I{I} sh -c 'echo processing {I}; cd {I}; gird_directory'
+  xargs -0 -n1 -I{} sh -c 'echo processing "{}"; cd "{}"; gird_directory'

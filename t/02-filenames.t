@@ -58,4 +58,32 @@ test_expect_success "Handles evil filename characters" "
   rm tt \"$evil\" Girdsums
 "
 
+# TODO: this still fails for filenames with double quotes in their names
+  # '\"a\"' \
+# need to figoure out an xargs workaround.
+
+for dirname in \
+  " a b   c " \
+  "'a'" \
+  'a;b>c|d&&e\\$f()g!h' \
+; do
+  test_expect_success "Recurses into directory named \"$dirname\"" "
+    mkdir \"$dirname\" &&
+    touch \"$dirname\"/hello &&
+    gird &&
+    echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  ./hello\" > tt &&
+    test_cmp tt \"$dirname\"/Girdsums &&
+    rm -rf \"$dirname\" Girdsums tt
+  "
+
+  test_expect_success "Runs on directory named \"$dirname\"" "
+    mkdir \"$dirname\" &&
+    touch \"$dirname\"/hello &&
+    gird \"$dirname\" &&
+    echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  ./hello\" > tt &&
+    test_cmp tt \"$dirname\"/Girdsums &&
+    rm -rf \"$dirname\" Girdsums tt
+  "
+done
+
 test_done

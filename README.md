@@ -93,12 +93,11 @@ including md5 and cksum.
 
 ## TODO
 
-* Show progress: what directory we're in
-  * gird --verbose and gird --silent
 * Add explicit arguments for gird --add and gird --verify
   * Also add a --force to tell add and verify to keep processing even if you see inconsistencies
 * Add a -j option to fork multiple jobs?
 * Consider using Blake https://blake2.net. It's fast!
+* Block some filenames, like .DS_Store?
 * Check on differences between sharness and git (heredoc/process substitution issues).
   * Does Git suffer the same issues or is it just sharness?
   * sharness's error is also very wrong: `sharness.sh: eval: line 383: syntax error`
