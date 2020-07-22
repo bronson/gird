@@ -19,9 +19,7 @@ Copy the `gird` file somewhere on your path.
 
 ## Testing
 
-Using [Sharness](https://github.com/chriscool/sharness).
-
-To run tests:
+The tests use [Sharness](https://github.com/chriscool/sharness). To run them:
 
 ```bash
 cd t
@@ -93,6 +91,7 @@ including md5 and cksum.
 
 ## TODO
 
+* Should recurse into hidden directories.
 * Add explicit arguments for gird --add and gird --verify
   * Also add a --force to tell add and verify to keep processing even if you see inconsistencies
 * Add a -j option to fork multiple jobs?
@@ -102,3 +101,9 @@ including md5 and cksum.
   * sharness's error is also very wrong: `sharness.sh: eval: line 383: syntax error`
   * this test-results directory is out of hand. is that sharness's fault?
 * make installation easier/better/more explicit
+
+Non-features:
+
+* Will not attempt error correction. Better to just restore corrupted files from backups.
+* Maybe if rewritten in a real programming language:
+  * Won't attempt to print runtime statistics or decent progress info

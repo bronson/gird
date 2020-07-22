@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# This script copies the information from all Girdsum files in a file tree
+# and stores it in one big Girtdree file.
+#     gird-collect ~/Photos
+
+# TODO: If a GirdCollection file already exists in the named directory,
+# should verify that file rather than creating a new one.
+
+find "${1:-.}" -type f -name Girdsums -print0 |
+  xargs -0 -n1 -I{} sh -c 'sed s/\\./"$(
+    echo {} | sed "s/\\\\/\\\\\\\\/g; s|/|\\\\/|g; s/&/\\\\&/g; s|\\\\/Girdsums$||"
+    )"/ "{}"' | sort -k2 > Girdtree
