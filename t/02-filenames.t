@@ -73,7 +73,7 @@ for dirname in \
     gird &&
     echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  ./hello\" > tt &&
     test_cmp tt \"$dirname\"/Girdsums &&
-    rm -rf \"$dirname\" Girdsums tt
+    rm -r \"$dirname\" Girdsums tt
   "
 
   test_expect_success "Runs on directory named \"$dirname\"" "
@@ -82,7 +82,7 @@ for dirname in \
     gird \"$dirname\" &&
     echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  ./hello\" > tt &&
     test_cmp tt \"$dirname\"/Girdsums &&
-    rm -rf \"$dirname\" Girdsums tt
+    rm -r \"$dirname\" tt
   "
 done
 

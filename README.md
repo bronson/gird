@@ -91,7 +91,6 @@ including md5 and cksum.
 
 ## TODO
 
-* Should recurse into hidden directories.
 * Add explicit arguments for gird --add and gird --verify
   * Also add a --force to tell add and verify to keep processing even if you see inconsistencies
 * Add a -j option to fork multiple jobs?
