@@ -4,9 +4,9 @@ When you're storing files for a long time, tiny corruptions can add up.
 Gird adds checksums next to each file so those corruptions can be found
 soon after they happen instead of years later by accident.
 
-Gird generates hashes for every file in a directory tree and stores them in
-a file named Girdsums. It then recursively processes all subdirectories.
-Later, Gird will check these hashes and verify that the contents of
+Gird generates hashes for every file in a directory and stores them in
+a file named Girdsums. All subdirectories are processed too.
+Later, Gird can check these hashes and verify that the contents of
 the files are identical to when they were first girded.
 
 ## BRAND NEW BRAND NEW BRAND NEW
@@ -97,7 +97,6 @@ including md5 and cksum.
   * Also add a --force to tell add and verify to keep processing even if you see inconsistencies
 * Add a -j option to fork multiple jobs?
 * Consider using Blake https://blake2.net. It's fast!
-* Block some filenames, like .DS_Store?
 * Check on differences between sharness and git (heredoc/process substitution issues).
   * Does Git suffer the same issues or is it just sharness?
   * sharness's error is also very wrong: `sharness.sh: eval: line 383: syntax error`

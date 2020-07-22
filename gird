@@ -2,24 +2,22 @@
 
 # Run this script to generate hashes for every file in a directory tree:
 #    gird ~/Photos
-# Run gird again to check those hashes and gird new files.
+# Each directory will now have a file named Girdsums in it.
 #
-# Running 'gird' operates on the current directory, as if you had typed 'gird .'
+# Run gird again to verify the hashes and ensure the directory contents haven't changed.
+# Gird will not modify an existing Girdsums file unless forced.
 #
-# Hard-coded to use sha1 because that's faster than all other algorithms, including md5 and cksum
-# (on my Mac anyway). This script is meant to defend against driver bugs and cosmic rays, not so much APTs and cryptographic integrity.
-
 # We compute the checksums for the files in this directory
 #   If there's an existing checksums file
 #     Then compare it to the new checksums
-#       If any files have been renamed, no problem.
-#           (old filename is gone, new filename is here, and checksums match)
-#       If any files have gone away, print a warning
-#       If any files have changed, PRINT A PANIC   (same name but checksum is different)
-#       Add new files to the end
+#       If the directory contents are different, PRINT A PANIC
+#       If any file digests have changed, PRINT A PANIC
 
 gird_directory () {
-  find . -type f -maxdepth 1 -not -name Girdsums -print0 | sort -z | xargs -0 shasum -a 1 > Girdsums
+  find . -type f -maxdepth 1 \
+    -not -name Girdsums \
+    -not -name .DS_Store \
+    -print0 | sort -z | xargs -0 shasum -a 1 > Girdsums
 }
 export -f gird_directory
 

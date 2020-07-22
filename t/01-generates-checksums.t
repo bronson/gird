@@ -30,4 +30,12 @@ test_expect_success "Processes hidden files" "
   rm .hidden tt Girdsums
 "
 
+test_expect_success "Skips garbage files" "
+  touch .DS_Store &&
+  gird &&
+  touch empty_file &&
+  test_cmp empty_file Girdsums &&
+  rm empty_file Girdsums .DS_Store
+"
+
 test_done
