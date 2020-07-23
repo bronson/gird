@@ -15,11 +15,26 @@
 
 gird_directory () {
   local path="$1"
+
   if [ -e Girdsums.inprogress ]; then
-    echo "$path: Girdsums.inprogress already exists. Is another Gird running? Exiting."
-    kill $ogpid; exit
+    echo "$path: Girdsums.inprogress already exists. Is another Gird running? Exiting." >&2
+    kill $ogpid
+    exit
   fi
 
+  if [ "$mode" == create ] && [ -f Girdsums ]; then
+    echo "$path: existing Girdsums file" >&2
+    kill $ogpid
+    exit
+  fi
+
+  if [ "$mode" == verify ] && [ ! -f Girdsums ]; then
+    echo "$path: missing Girdsums file" >&2
+    kill $ogpid
+    exit
+  fi
+
+  echo "processing $path"
   find . -type f -maxdepth 1 \
     -not -name Girdsums \
     -not -name Girdsums.inprogress \
@@ -28,12 +43,12 @@ gird_directory () {
 
     if [ -e Girdsums ]; then
       local differences="$(diff -u Girdsums Girdsums.inprogress)"
-      if [ -z "$differences" ]; then
-        rm Girdsums.inprogress
-      else
-        echo "$path: gird verification failed"
-        echo "$differences"
-        kill $ogpid; exit
+      rm Girdsums.inprogress
+      if [ -n "$differences" ]; then
+        echo "$path: gird verification failed:" >&2
+        echo "$differences" >&2
+        kill $ogpid
+        exit
       fi
     else
       mv Girdsums.inprogress Girdsums
@@ -41,6 +56,27 @@ gird_directory () {
 }
 export -f gird_directory
 
-export ogpid=$$ # kill this pid to abort
-find "${1:-.}" -type d -print0 |
-  xargs -0 -n1 -I{} sh -c 'echo processing "{}"; cd "{}"; gird_directory "{}"'
+process_path() {
+  find "$1" -type d -print0 | xargs -0 -n1 -I{} sh -c 'cd "{}" && gird_directory "{}"'
+}
+
+export ogpid=$$ # to abort, kill this pid
+export mode='run'
+let count=0
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -c|--create) mode='create'; shift;;
+    -c|--verify) mode='verify'; shift;;
+    # -v|--verbose)
+    # --version)
+    # --pidfile=*) pidfile="${1#*=}"; shift 1;;
+    # --pidfile) echo "$1 requires an argument" >&2; exit 1;;
+    # -*) echo "unknown option: $1" >&2; exit 1;;
+    *) let count++; process_path "$1"; shift;;
+  esac
+done
+
+if [ "$count" -eq 0 ]; then
+  process_path '.'
+fi

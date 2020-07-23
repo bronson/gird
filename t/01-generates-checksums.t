@@ -47,4 +47,12 @@ test_expect_success "Skips garbage files" "
   rm empty_file Girdsums .DS_Store
 "
 
+test_expect_success "Handles multiple arguments" "
+  mkdir yesdir1 yesdir2 nodir &&
+  gird yesdir1 yesdir2 &&
+  [ -f yesdir1/Girdsums ] && [ -f yesdir2/Girdsums ] &&
+  [ ! -e nodir/Girdsums ] &&
+  rm -r yesdir1 yesdir2 nodir
+"
+
 test_done

@@ -92,15 +92,17 @@ including md5 and cksum.
 ## TODO
 
 * Also gird Girdfiles in direct subdirectories. Ensure concistency right from the top-level.
-* Add explicit arguments for gird --add and gird --verify
-  * Also add a --force to tell add and verify to keep processing even if you see inconsistencies
-* Add a -j option to fork multiple jobs?
+
+Wishlist:
+
+* Maybe add --force to tell gird to keep processing even if it sees inconsistencies
+* Maybe add a -j option to fork multiple jobs?
+* Maybe make installation easier/better/more explicit
 * Consider using Blake https://blake2.net. It's fast!
 * Check on differences between sharness and git (heredoc/process substitution issues).
   * Does Git suffer the same issues or is it just sharness?
   * sharness's error is also very wrong: `sharness.sh: eval: line 383: syntax error`
   * this test-results directory is out of hand. is that sharness's fault?
-* make installation easier/better/more explicit
 * The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
 * make `make watch` better (see TODO comments)
 

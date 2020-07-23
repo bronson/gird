@@ -27,4 +27,16 @@ test_expect_success "Aborts when it finds an incorrect Girdfile" "
   rm Girdsums testfile
 "
 
+test_expect_success "Requires a girdfile when verifying" "
+  [ \"$(find .)\" == '.' ] &&
+  test_expect_code 143 gird --verify &&
+  [ \"$(find .)\" == '.' ]
+"
+
+test_expect_success "Rejects a girdfile when creating" "
+  touch Girdsums &&
+  test_expect_code 143 gird --create &&
+  rm Girdsums
+"
+
 test_done
