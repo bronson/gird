@@ -59,9 +59,7 @@ aggregate-results:
 .PHONY: all test prove $(T) pre-clean clean
 .PHONY: aggregate-results-and-cleanup aggregate-results
 
-# TODO: this doesn't notice when new files show up
-# TODO: having failing tests shouldn't prevent us from starting to watch
 # TODO: is there any way to just print a green date on success, or the error on failure?
+# the sleep is so the filesystem can settle down before watching for changes again
 watch:
-	date; prove *.t
-	fswatch -or ../gird *.t fixtures | xargs -n1 -I{} sh -c 'date; prove *.t'
+	sh -c 'while : ; do date; prove *.t; sleep 1; fswatch -1r ../gird . fixtures; done'

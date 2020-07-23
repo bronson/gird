@@ -104,7 +104,6 @@ Wishlist:
   * sharness's error is also very wrong: `sharness.sh: eval: line 383: syntax error`
   * this test-results directory is out of hand. is that sharness's fault?
 * The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
-* make `make watch` better (see TODO comments)
 
 Non-features:
 
