@@ -14,6 +14,11 @@
 #       If any file digests have changed, PRINT A PANIC
 
 gird_directory () {
+  if [ -e Girdsums.inprogress ]; then
+    echo 'Girdsums.inprogress already exists. Is another Gird running? Exiting.'
+    kill $ogpid
+  fi
+
   find . -type f -maxdepth 1 \
     -not -name Girdsums \
     -not -name .DS_Store \
@@ -21,5 +26,6 @@ gird_directory () {
 }
 export -f gird_directory
 
+export ogpid=$$ # kill this pid to abort
 find "${1:-.}" -type d -print0 |
   xargs -0 -n1 -I{} sh -c 'echo processing "{}"; cd "{}"; gird_directory'

@@ -30,7 +30,7 @@ test_expect_success "Processes hidden files" "
   rm .hidden tt Girdsums
 "
 
-test_expect_success "Process hidden directories" "
+test_expect_success "Processes hidden directories" "
   mkdir .hidden &&
   touch .hidden/hi &&
   gird &&

@@ -91,6 +91,7 @@ including md5 and cksum.
 
 ## TODO
 
+* Also gird Girdfiles in direct subdirectories. Ensure concistency right from the top-level.
 * Add explicit arguments for gird --add and gird --verify
   * Also add a --force to tell add and verify to keep processing even if you see inconsistencies
 * Add a -j option to fork multiple jobs?
@@ -100,6 +101,8 @@ including md5 and cksum.
   * sharness's error is also very wrong: `sharness.sh: eval: line 383: syntax error`
   * this test-results directory is out of hand. is that sharness's fault?
 * make installation easier/better/more explicit
+* The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
+* make `make watch` better (see TODO comments)
 
 Non-features:
 
