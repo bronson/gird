@@ -10,6 +10,7 @@ test_expect_success "Simple recursive checksum" "
   test_cmp "$SHARNESS_TEST_DIRECTORY/fixtures/test-tree/Girdsums" test-tree/Girdsums &&
   test_cmp "$SHARNESS_TEST_DIRECTORY/fixtures/test-tree/dir/Girdsums" test-tree/dir/Girdsums &&
   test_cmp "$SHARNESS_TEST_DIRECTORY/fixtures/test-tree/dir2/Girdsums" test-tree/dir2/Girdsums &&
+  test_cmp "$SHARNESS_TEST_DIRECTORY/fixtures/test-tree/.hiddendir/Girdsums" test-tree/.hiddendir/Girdsums &&
   rm -r test-tree
 "
 

@@ -41,18 +41,18 @@ gird_directory () {
     -not -name .DS_Store \
     -print0 | sort -z | xargs -0 shasum -a 1 > Girdsums.inprogress
 
-    if [ -e Girdsums ]; then
-      local differences="$(diff -u Girdsums Girdsums.inprogress)"
-      rm Girdsums.inprogress
-      if [ -n "$differences" ]; then
-        echo "$path: gird verification failed:" >&2
-        echo "$differences" >&2
-        kill $ogpid
-        exit
-      fi
-    else
-      mv Girdsums.inprogress Girdsums
+  if [ -e Girdsums ]; then
+    local differences="$(diff -u Girdsums Girdsums.inprogress)"
+    rm Girdsums.inprogress
+    if [ -n "$differences" ]; then
+      echo "$path: gird verification failed:" >&2
+      echo "$differences" >&2
+      kill $ogpid
+      exit
     fi
+  else
+    mv Girdsums.inprogress Girdsums
+  fi
 }
 export -f gird_directory
 
@@ -67,7 +67,7 @@ let count=0
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -c|--create) mode='create'; shift;;
-    -c|--verify) mode='verify'; shift;;
+    -s|--verify|--scan) mode='verify'; shift;;
     # -v|--verbose)
     # --version)
     # --pidfile=*) pidfile="${1#*=}"; shift 1;;

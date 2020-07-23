@@ -91,7 +91,10 @@ including md5 and cksum.
 
 ## TODO
 
+* Remove redundant ./ from the start of paths (thanks find)
+* Test and document that shasum -c works on girdfiles
 * Also gird Girdfiles in direct subdirectories. Ensure concistency right from the top-level.
+* Add the summarize script
 
 Wishlist:
 
@@ -107,6 +110,7 @@ Wishlist:
 
 Non-features:
 
-* Will not attempt error correction. Better to just restore corrupted files from backups.
-* Maybe if rewritten in a real programming language:
+* Will not attempt error correction. There are other tools for that.
+  * Better to just restore the corrupted files from backups.
+* Not until rewritten in a real programming language:
   * Won't attempt to print runtime statistics or decent progress info
