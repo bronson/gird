@@ -14,18 +14,33 @@
 #       If any file digests have changed, PRINT A PANIC
 
 gird_directory () {
+  local path="$1"
   if [ -e Girdsums.inprogress ]; then
-    echo 'Girdsums.inprogress already exists. Is another Gird running? Exiting.'
-    kill $ogpid
+    echo "$path: Girdsums.inprogress already exists. Is another Gird running? Exiting."
+    kill $ogpid; exit
   fi
 
   find . -type f -maxdepth 1 \
     -not -name Girdsums \
+    -not -name Girdsums.inprogress \
     -not -name .DS_Store \
-    -print0 | sort -z | xargs -0 shasum -a 1 > Girdsums
+    -print0 | sort -z | xargs -0 shasum -a 1 > Girdsums.inprogress
+
+    if [ -e Girdsums ]; then
+      local differences="$(diff -u Girdsums Girdsums.inprogress)"
+      if [ -z "$differences" ]; then
+        rm Girdsums.inprogress
+      else
+        echo "$path: gird verification failed"
+        echo "$differences"
+        kill $ogpid; exit
+      fi
+    else
+      mv Girdsums.inprogress Girdsums
+    fi
 }
 export -f gird_directory
 
 export ogpid=$$ # kill this pid to abort
 find "${1:-.}" -type d -print0 |
-  xargs -0 -n1 -I{} sh -c 'echo processing "{}"; cd "{}"; gird_directory'
+  xargs -0 -n1 -I{} sh -c 'echo processing "{}"; cd "{}"; gird_directory "{}"'
