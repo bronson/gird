@@ -22,7 +22,7 @@ test_expect_success "Silent success when it finds a correct Girdfile" "
 test_expect_success "Aborts when it finds an incorrect Girdfile" "
   echo a > testfile &&
   gird &&
-  echo b > testfile
+  echo b > testfile &&
   test_expect_code 1 gird &&
   rm Girdsums testfile
 "
@@ -37,6 +37,15 @@ test_expect_success "Rejects a girdfile when creating" "
   touch Girdsums &&
   test_expect_code 1 gird --create &&
   rm Girdsums
+"
+
+test_expect_success "Girds Girdsum files one directory deeper" "
+  cp -r "$SHARNESS_TEST_DIRECTORY/fixtures/deep-tree" . &&
+  gird --create && # test both
+  gird --verify &&
+  grep deep-tree/Girdsums Girdsums &&
+  grep dirone/Girdsums deep-tree/Girdsums &&
+  rm -r deep-tree
 "
 
 test_done

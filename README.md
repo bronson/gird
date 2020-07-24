@@ -91,10 +91,15 @@ including md5 and cksum.
 
 ## TODO
 
+* The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
+* Add -f to force all Girdsum files to be updated
 * Remove redundant ./ from the start of paths (thanks find)
 * Test and document that shasum -c works on girdfiles
-* Also gird Girdfiles in direct subdirectories. Ensure concistency right from the top-level.
+* force create/verify depending on whether a Girdsums file exists in the starting directory
 * Add the summarize script
+* Add --version and --help
+* Clean up the diff output when verification fails
+* Add some tests to ensure sane errors are printed (and no process term warning on abort)
 
 Wishlist:
 
@@ -106,7 +111,6 @@ Wishlist:
   * Does Git suffer the same issues or is it just sharness?
   * sharness's error is also very wrong: `sharness.sh: eval: line 383: syntax error`
   * this test-results directory is out of hand. is that sharness's fault?
-* The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
 
 Non-features:
 

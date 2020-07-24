@@ -35,11 +35,17 @@ gird_directory () {
   fi
 
   echo "processing $path"
+  # add the files in the current directory
   find . -type f -maxdepth 1 \
     -not -name Girdsums \
     -not -name Girdsums.inprogress \
     -not -name .DS_Store \
     -print0 | sort -z | xargs -0 shasum -a 1 > Girdsums.inprogress
+  # add Girdsums files in subdirectories
+  for file in */Girdsums; do
+    [ -e "$file" ] || continue # bash returns the unexpanded string when no files match
+    shasum -a 1 "$file" >> Girdsums.inprogress
+  done
 
   if [ -e Girdsums ]; then
     local differences="$(diff -u Girdsums Girdsums.inprogress)"
@@ -57,7 +63,7 @@ gird_directory () {
 export -f gird_directory
 
 process_path() {
-  find "$1" -type d -print0 | xargs -0 -n1 -I{} sh -c 'cd "{}" && gird_directory "{}"'
+  find "$1" -type d -d -print0 | xargs -0 -n1 -I{} sh -c 'cd "{}" && gird_directory "{}"'
 }
 
 # subprocesses kill the parent to abort
