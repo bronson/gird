@@ -91,19 +91,21 @@ including md5 and cksum.
 
 ## TODO
 
-* The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
-* Add -f to force all Girdsum files to be updated
+* Clean up the diff output when verification fails
 * Remove redundant ./ from the start of paths (thanks find)
-* Test and document that shasum -c works on girdfiles
 * force create/verify depending on whether a Girdsums file exists in the starting directory
+* The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
+* Add --continue to keep gird running even if it finds inconsistencies
+* Add --reset to force update all girdfiles
+* Call it --init instead of --create
+* Add filename tests for files and directories starting with hyphens
+* Test and document that shasum -c works on girdfiles
 * Add the summarize script
 * Add --version and --help
-* Clean up the diff output when verification fails
 * Add some tests to ensure sane errors are printed (and no process term warning on abort)
 
 Wishlist:
 
-* Maybe add --force to tell gird to keep processing even if it sees inconsistencies
 * Maybe add a -j option to fork multiple jobs?
 * Maybe make installation easier/better/more explicit
 * Consider using Blake https://blake2.net. It's fast!

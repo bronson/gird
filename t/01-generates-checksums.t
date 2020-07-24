@@ -60,7 +60,20 @@ test_expect_success "Handles multiple arguments" "
 test_expect_success "Fails when passed a file" "
   touch afile &&
   gird afile &&
-  [ ! -e Girdsums ]
+  [ ! -e Girdsums ] &&
+  rm afile
+"
+
+# print a warning if we don't recognize an argument
+# (if the user wants to gird a directory starting with a hyphen,
+# they can just cd into that directory and run `gird`)
+test_expect_success "Warns about unrecognized arguments" "
+  touch afile &&
+  test_expect_code 1 gird --what 2>stderr &&
+  echo 'unknown option: --what' > expected &&
+  test_cmp expected stderr &&
+  [ ! -e Girdsums ] &&
+  rm afile expected stderr
 "
 
 test_done
