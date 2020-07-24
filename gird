@@ -52,7 +52,7 @@ gird_directory () {
     rm Girdsums.inprogress
     if [ -n "$differences" ]; then
       echo "$path: gird verification failed:" >&2
-      echo "$differences" >&2
+      echo "$differences" | grep '^[+-][0-9A-Fa-f]' >&2
       kill $ogpid
       exit
     fi

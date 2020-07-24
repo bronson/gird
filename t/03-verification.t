@@ -20,11 +20,16 @@ test_expect_success "Silent success when it finds a correct Girdfile" "
 "
 
 test_expect_success "Aborts when it finds an incorrect Girdfile" "
-  echo a > testfile &&
-  gird &&
-  echo b > testfile &&
-  test_expect_code 1 gird &&
-  rm Girdsums testfile
+  mkdir workdir &&
+  echo a > workdir/testfile &&
+  gird workdir &&
+  echo b > workdir/testfile &&
+  test_expect_code 1 gird workdir 2>stderr &&
+  echo 'workdir: gird verification failed:' > expected &&
+  echo '-3f786850e387550fdab836ed7e6dc881de23001b  ./testfile' >> expected &&
+  echo '+89e6c98d92887913cadf06b2adb97f26cde4849b  ./testfile' >> expected &&
+  test_cmp expected stderr &&
+  rm -r workdir expected stderr
 "
 
 test_expect_success "Requires a girdfile when verifying" "
