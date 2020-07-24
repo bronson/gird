@@ -56,4 +56,11 @@ test_expect_success "Handles multiple arguments" "
   rm -r yesdir1 yesdir2 nodir
 "
 
+# Ensure we do nothing if passed a file. Silence is acceptable.
+test_expect_success "Fails when passed a file" "
+  touch afile &&
+  gird afile &&
+  [ ! -e Girdsums ]
+"
+
 test_done
