@@ -60,6 +60,13 @@ process_path() {
   find "$1" -type d -print0 | xargs -0 -n1 -I{} sh -c 'cd "{}" && gird_directory "{}"'
 }
 
+# subprocesses kill the parent to abort
+# unless we trap the signal, bash prints a process terminated warning
+abort() {
+  exit 1
+}
+trap abort TERM
+
 export ogpid=$$ # to abort, kill this pid
 export mode='run'
 let count=0
