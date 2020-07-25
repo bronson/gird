@@ -26,7 +26,7 @@ test_expect_success "Running in empty dir" "
 test_expect_success "Processes hidden files" "
   touch .hidden &&
   gird &&
-  echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  ./.hidden\" > tt &&
+  echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  .hidden\" > tt &&
   test_cmp tt Girdsums &&
   rm .hidden tt Girdsums
 "
@@ -35,7 +35,7 @@ test_expect_success "Processes hidden directories" "
   mkdir .hidden &&
   touch .hidden/hi &&
   gird &&
-  echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  ./hi\" > tt &&
+  echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  hi\" > tt &&
   test_cmp tt .hidden/Girdsums &&
   rm -r .hidden tt Girdsums
 "

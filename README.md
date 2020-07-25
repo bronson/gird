@@ -91,7 +91,6 @@ including md5 and cksum.
 
 ## TODO
 
-* Remove redundant ./ from the start of paths (thanks find)
 * force create/verify depending on whether a Girdsums file exists in the starting directory
 * The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
 * Add --continue to keep gird running even if it finds inconsistencies

@@ -40,7 +40,7 @@ gird_directory () {
     -not -name Girdsums \
     -not -name Girdsums.inprogress \
     -not -name .DS_Store \
-    -print0 | sort -z | xargs -0 shasum -a 1 > Girdsums.inprogress
+    -print0 | sort -z | xargs -0 shasum -a 1 | sed 's| ./| |' > Girdsums.inprogress
   # add Girdsums files in subdirectories
   for file in */Girdsums; do
     [ -e "$file" ] || continue # bash returns the unexpanded string when no files match
