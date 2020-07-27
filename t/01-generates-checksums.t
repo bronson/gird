@@ -6,6 +6,7 @@ test_description="Ensures recursive checksumming works"
 
 test_expect_success "Simple recursive checksum" "
   cp -r "$SHARNESS_TEST_DIRECTORY/fixtures/test-tree" . &&
+  find . -name Girdsums -delete &&
   gird test-tree &&
   test_cmp "$SHARNESS_TEST_DIRECTORY/fixtures/test-tree/Girdsums" test-tree/Girdsums &&
   test_cmp "$SHARNESS_TEST_DIRECTORY/fixtures/test-tree/dir/Girdsums" test-tree/dir/Girdsums &&
@@ -76,11 +77,43 @@ test_expect_success "Warns about unrecognized arguments" "
   rm afile expected stderr
 "
 
+# the `find:` at the beginning of the error message is unfortunate but meh
 test_expect_success "Aborts if directory doesn't exist" "
   test_expect_code 1 bash -c 'gird noexisty 2>stderr'
   echo 'find: noexisty: No such file or directory' > expected &&
   test_cmp expected stderr &&
   rm expected stderr
 "
+
+# starting in a directory without a Girdsums puts us into init mode
+# so a subdirectory with a Girdsums file should be an error
+test_expect_success "Correctly selects verify starting mode" "
+  mkdir -p testdir/testdir &&
+  touch testdir/Girdsums &&
+  test_expect_code 1 bash -c 'gird testdir 2>stderr' &&
+  echo 'testdir/testdir: missing Girdsums file' > expected &&
+  test_cmp expected stderr &&
+  rm -r testdir expected stderr
+"
+
+test_expect_success "Correctly selects init starting mode" "
+  mkdir -p testdir/testdir &&
+  touch testdir/testdir/Girdsums &&
+  test_expect_code 1 bash -c 'gird testdir 2>stderr'
+  echo 'testdir/testdir: existing Girdsums file' > expected &&
+  test_cmp expected stderr &&
+  rm -r testdir expected stderr
+"
+
+# Can automatically select running in one mode, then switch to another
+
+# But won't override what we're told to do on the command line
+
+# test_expect_success "Correctly chooses verify" "
+#   mkdir testdir &&
+#   touch testdir/testfile &&
+#   touch Girdfile &&
+#   test_expect_code 1 gird 2>stderr &&
+# "
 
 test_done

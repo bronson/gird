@@ -63,6 +63,15 @@ gird_directory () {
 export -f gird_directory
 
 process_path() {
+  export mode="$forcemode"
+  if [ -z "$mode" ]; then
+    if [ -f "$1/Girdsums" ]; then
+      mode=verify
+    else
+      mode=init
+    fi
+  fi
+
   find "$1" -type d -d -print0 | xargs -0 -n1 -I{} sh -c 'cd "{}" && gird_directory "{}"' || abort
 }
 
@@ -74,13 +83,12 @@ abort() {
 trap abort TERM
 
 export ogpid=$$ # to abort, kill this pid
-export mode='run'
 let count=0
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    -i|--init) mode='init'; shift;;
-    -s|--verify|--scan) mode='verify'; shift;;
+    -i|--init) forcemode='init'; shift;;
+    -s|--verify|--scan) forcemode='verify'; shift;;
     # -v|--verbose)
     # --version)
     # --pidfile=*) pidfile="${1#*=}"; shift 1;;

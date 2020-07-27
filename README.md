@@ -91,8 +91,6 @@ including md5 and cksum.
 
 ## TODO
 
-* force init/verify depending on whether a Girdsums file exists in the starting directory
-* The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
 * Add --continue to keep gird running even if it finds inconsistencies
 * Add --reset to force update all girdfiles
 * Add filename tests for files and directories starting with hyphens
@@ -110,6 +108,11 @@ Wishlist:
   * Does Git suffer the same issues or is it just sharness?
   * sharness's error is also very wrong: `sharness.sh: eval: line 383: syntax error`
   * this test-results directory is out of hand. is that sharness's fault?
+  * The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
+    * played with this a bit but it was rubbing sharness the wrong way. Prob not worth the time.
+  * is there an easy way to have each test_expect_success to run in its own subdirectory?
+    * right now, an aborted test early in the file causes a cascade of meaningless failures
+
 
 Non-features:
 
