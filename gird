@@ -63,7 +63,7 @@ gird_directory () {
 export -f gird_directory
 
 process_path() {
-  find "$1" -type d -d -print0 | xargs -0 -n1 -I{} sh -c 'cd "{}" && gird_directory "{}"'
+  find "$1" -type d -d -print0 | xargs -0 -n1 -I{} sh -c 'cd "{}" && gird_directory "{}"' || abort
 }
 
 # subprocesses kill the parent to abort

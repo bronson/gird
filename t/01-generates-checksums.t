@@ -76,4 +76,11 @@ test_expect_success "Warns about unrecognized arguments" "
   rm afile expected stderr
 "
 
+test_expect_success "Aborts if directory doesn't exist" "
+  test_expect_code 1 bash -c 'gird noexisty 2>stderr'
+  echo 'find: noexisty: No such file or directory' > expected &&
+  test_cmp expected stderr &&
+  rm expected stderr
+"
+
 test_done
