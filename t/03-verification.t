@@ -40,13 +40,13 @@ test_expect_success "Requires a girdfile when verifying" "
 
 test_expect_success "Rejects a girdfile when creating" "
   touch Girdsums &&
-  test_expect_code 1 gird --create &&
+  test_expect_code 1 gird --init &&
   rm Girdsums
 "
 
 test_expect_success "Girds Girdsum files one directory deeper" "
   cp -r "$SHARNESS_TEST_DIRECTORY/fixtures/deep-tree" . &&
-  gird --create && # test both
+  gird --init && # test both
   gird --verify &&
   grep deep-tree/Girdsums Girdsums &&
   grep dirone/Girdsums deep-tree/Girdsums &&

@@ -91,11 +91,10 @@ including md5 and cksum.
 
 ## TODO
 
-* force create/verify depending on whether a Girdsums file exists in the starting directory
+* force init/verify depending on whether a Girdsums file exists in the starting directory
 * The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
 * Add --continue to keep gird running even if it finds inconsistencies
 * Add --reset to force update all girdfiles
-* Call it --init instead of --create
 * Add filename tests for files and directories starting with hyphens
 * Test and document that shasum -c works on girdfiles
 * Add the summarize script

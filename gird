@@ -22,7 +22,7 @@ gird_directory () {
     exit
   fi
 
-  if [ "$mode" == create ] && [ -f Girdsums ]; then
+  if [ "$mode" == init ] && [ -f Girdsums ]; then
     echo "$path: existing Girdsums file" >&2
     kill $ogpid
     exit
@@ -79,7 +79,7 @@ let count=0
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    -c|--create) mode='create'; shift;;
+    -i|--init) mode='init'; shift;;
     -s|--verify|--scan) mode='verify'; shift;;
     # -v|--verbose)
     # --version)
