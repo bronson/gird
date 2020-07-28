@@ -20,8 +20,9 @@ test_expect_success "Silent success when it finds a correct Girdfile" "
   echo a > testdir/testfile &&
   gird testdir > stdout1 &&  # initialize
   gird testdir > stdout2 &&  # verify
-  echo 'processing testdir' > expected &&
+  echo 'initializing testdir' > expected &&
   test_cmp expected stdout1 &&
+  echo 'verifying testdir' > expected &&
   test_cmp expected stdout2 &&
   rm -r testdir stdout1 stdout2 expected
 "

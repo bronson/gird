@@ -26,15 +26,15 @@ gird_directory () {
     die "$path: Girdsums.inprogress already exists. Is another Gird running? Exiting."
   fi
 
-  if [ "$mode" == init ] && [ -f Girdsums ]; then
+  if [ "$mode" == initializing ] && [ -f Girdsums ]; then
     die "$path: existing Girdsums file"
   fi
 
-  if [ "$mode" == verify ] && [ ! -f Girdsums ]; then
+  if [ "$mode" == verifying ] && [ ! -f Girdsums ]; then
     die "$path: missing Girdsums file"
   fi
 
-  echo "processing $path"
+  echo "$mode $path"
   # add the files in the current directory
   find . -type f -maxdepth 1 \
     -not -name Girdsums \
@@ -63,9 +63,9 @@ process_path() {
   export mode="$forcemode"
   if [ -z "$mode" ]; then
     if [ -f "$1/Girdsums" ]; then
-      mode=verify
+      mode=verifying
     else
-      mode=init
+      mode=initializing
     fi
   fi
 
@@ -89,8 +89,8 @@ let count=0
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    -i|--init) forcemode='init'; shift;;
-    -s|--verify|--scan) forcemode='verify'; shift;;
+    -i|--init) forcemode='initializing'; shift;;
+    -s|--verify|--scan) forcemode='verifying'; shift;;
     # -v|--verbose)
     # --version)
     # --pidfile=*) pidfile="${1#*=}"; shift 1;;
