@@ -1,17 +1,8 @@
 #!/bin/sh
 
-test_description="Ensures recursive checksumming works"
+test_description="Ensures we can handle bizarre file and directory names"
 
 . sharness.sh
-
-filename=" a b   c "
-test_expect_success "Handles spaces in filenames" "
-  touch \"$filename\" &&
-  gird &&
-  echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  $filename\" > tt &&
-  test_cmp tt Girdsums &&
-  rm tt \"$filename\" Girdsums
-"
 
 # Probably need to disable this test on Windows
 # TODO: yikes, is this a sharness problem?
@@ -27,63 +18,63 @@ test_expect_success "Handles spaces in filenames" "
 #   rm tt \"$filename\" Girdsums
 # "
 
-filename="'a'"
-test_expect_success "Handles single quotes in filenames" "
-  touch \"$filename\" &&
-  gird &&
-  echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  $filename\" > tt &&
-  test_cmp tt Girdsums &&
-  rm tt \"$filename\" Girdsums
-"
+  # '\$f' \
+  # '\\\$f' \
+  # '\\\"' "\\\'" \
 
-filename='\"a\"'
-test_expect_success "Handles double quotes in filenames" "
-  touch \"$filename\" &&
-  gird &&
-  echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  $filename\" > tt &&
-  test_cmp tt Girdsums &&
-  rm tt \"$filename\" Girdsums
-"
-
-evil='a;b>c|d&&e\$f()g!h'
-# Can't use a heredoc to remove the need for the tt file.
-# It works when running directly, fails when running in `prove`.
-#     diff -u <(echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  $evil\") Girdsums &&
-# Ah, the issue appears to be the process substitution. See the 'Running in empty dir' test.
-test_expect_success "Handles evil filename characters" "
-  touch \"$evil\" &&
-  gird &&
-  echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  $evil\" > tt &&
-  test_cmp tt Girdsums &&
-  rm tt \"$evil\" Girdsums
-"
-
-# TODO: this still fails for filenames with double quotes in their names
-  # '\"a\"' \
-# need to figoure out an xargs workaround.
-
-for dirname in \
+for evilname in \
   " a b   c " \
   "'a'" \
-  'a;b>c|d&&e\\$f()g!h' \
+  '\"a\"' \
+  'a;b>c|d&&e' \
+  'e()f#g!h@i?' \
+  '$' '*' '&' '<' '>' ';' \
+  '-h' \
+  '--help' \
 ; do
-  test_expect_success "Recurses into directory named \"$dirname\"" "
-    mkdir \"$dirname\" &&
-    touch \"$dirname\"/hello &&
+  test_expect_success "Can process files named \"$evilname\"" "
+    touch -- \"$evilname\" &&
     gird &&
-    echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  hello\" > tt &&
-    test_cmp tt \"$dirname\"/Girdsums &&
-    rm -r \"$dirname\" Girdsums tt
+    echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  $evilname\" > tt &&
+    test_cmp tt Girdsums &&
+    rm -- tt \"$evilname\" Girdsums &&
+    echo LISTING:
+    find .
+    echo DONE
   "
 
-  test_expect_success "Runs on directory named \"$dirname\"" "
-    mkdir \"$dirname\" &&
-    touch \"$dirname\"/hello &&
-    gird \"$dirname\" &&
-    echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  hello\" > tt &&
-    test_cmp tt \"$dirname\"/Girdsums &&
-    rm -r \"$dirname\" tt
+  test_expect_success "Recurses into directory named \"$evilname\"" "
+    case \"$evilname\" in
+    \\\"*) : ;;  # can't currently recurse over directories with dblquote in their names
+    *)
+      mkdir -- \"$evilname\" &&
+      touch -- \"$evilname\"/hello &&
+      gird &&
+      echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  hello\" > tt &&
+      (cd -- \"$evilname\" && test_cmp ../tt Girdsums) &&
+      rm -r -- \"$evilname\" Girdsums tt
+    esac
+  "
+
+  test_expect_success "Runs on directory named \"$evilname\"" "
+    case \"$evilname\" in
+    -*|\\\"*) : ;;  # gird doesn't support directories with leading hyphens on the command line
+    *)
+      mkdir -- \"$evilname\" &&
+      touch -- \"$evilname\"/hello &&
+      gird \"$evilname\" &&
+      echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  hello\" > tt &&
+      (cd -- \"$evilname\" && test_cmp ../tt Girdsums) &&
+      rm -r -- \"$evilname\" tt
+      ;;
+    esac
   "
 done
 
 test_done
+
+# random thoughts:
+# Can't use a heredoc to remove the need for the tt file.
+# It works when running directly, fails when running in `prove`.
+#     diff -u <(echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  $evil\") Girdsums &&
+# Ah, the issue appears to be the process substitution. See the 'Running in empty dir' test.
