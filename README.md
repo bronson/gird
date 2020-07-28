@@ -98,7 +98,6 @@ including md5 and cksum.
 * Test and document that shasum -c works on girdfiles
 * Add --version and --help
 * Put the summarize script in contrib
-* Make sure all uses of test_expect_code ensure some form of error output exists
 
 Wishlist:
 

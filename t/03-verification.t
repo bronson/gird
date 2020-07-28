@@ -7,16 +7,23 @@ test_description="Ensures gird can verify its own output"
 test_expect_success "Aborts when it finds an inprogress file" "
   touch Girdsums.inprogress &&
   touch empty &&
-  test_expect_code 1 gird &&
+  test_expect_code 1 gird 2>stderr &&
+  touch expected &&
+  echo '.: Girdsums.inprogress already exists. Is another Gird running? Exiting.' > expected &&
+  test_cmp expected stderr &&
   [ ! -e Girdsums ] &&
-  rm Girdsums.inprogress empty
+  rm expected stderr Girdsums.inprogress empty
 "
 
 test_expect_success "Silent success when it finds a correct Girdfile" "
-  echo a > testfile &&
-  gird &&     # generate
-  gird &&     # verify
-  rm Girdsums testfile
+  mkdir testdir &&
+  echo a > testdir/testfile &&
+  gird testdir > stdout1 &&  # initialize
+  gird testdir > stdout2 &&  # verify
+  echo 'processing testdir' > expected &&
+  test_cmp expected stdout1 &&
+  test_cmp expected stdout2 &&
+  rm -r testdir stdout1 stdout2 expected
 "
 
 test_expect_success "Aborts when it finds an incorrect Girdfile" "
@@ -34,13 +41,18 @@ test_expect_success "Aborts when it finds an incorrect Girdfile" "
 
 test_expect_success "Requires a girdfile when verifying" "
   [ \"$(find .)\" == '.' ] &&
-  test_expect_code 1 gird --verify &&
+  test_expect_code 1 gird --verify 2>stderr &&
+  echo '.: missing Girdsums file' > expected &&
+  test_cmp expected stderr &&
+  rm expected stderr &&
   [ \"$(find .)\" == '.' ]
 "
 
 test_expect_success "Rejects a girdfile when creating" "
   touch Girdsums &&
-  test_expect_code 1 gird --init &&
+  test_expect_code 1 gird --init 2>stderr &&
+  echo '.: existing Girdsums file' > expected &&
+  test_cmp expected stderr &&
   rm Girdsums
 "
 
