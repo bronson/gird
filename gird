@@ -14,24 +14,24 @@
 #       If any file digests have changed, PRINT A PANIC
 
 gird_directory () {
+  die () {
+    echo "$@" >&2
+    kill $ogpid
+    exit 255 # 255 tells xargs to quit immediately
+  }
+
   local path="$1"
 
   if [ -e Girdsums.inprogress ]; then
-    echo "$path: Girdsums.inprogress already exists. Is another Gird running? Exiting." >&2
-    kill $ogpid
-    exit
+    die "$path: Girdsums.inprogress already exists. Is another Gird running? Exiting."
   fi
 
   if [ "$mode" == init ] && [ -f Girdsums ]; then
-    echo "$path: existing Girdsums file" >&2
-    kill $ogpid
-    exit
+    die "$path: existing Girdsums file"
   fi
 
   if [ "$mode" == verify ] && [ ! -f Girdsums ]; then
-    echo "$path: missing Girdsums file" >&2
-    kill $ogpid
-    exit
+    die "$path: missing Girdsums file"
   fi
 
   echo "processing $path"
@@ -51,10 +51,7 @@ gird_directory () {
     local differences="$(diff -u Girdsums Girdsums.inprogress)"
     rm Girdsums.inprogress
     if [ -n "$differences" ]; then
-      echo "$path: gird verification failed:" >&2
-      echo "$differences" | grep '^[+-][0-9A-Fa-f]' >&2
-      kill $ogpid
-      exit
+      die "$path: gird verification failed:"'\n'"$(echo "$differences" | grep '^[+-][0-9A-Fa-f]')"
     fi
   else
     mv Girdsums.inprogress Girdsums
@@ -72,7 +69,12 @@ process_path() {
     fi
   fi
 
-  find "$1" -type d -d -print0 | xargs -0 -n1 -I{} sh -c 'cd "{}" && gird_directory "{}"' || abort
+  set -o pipefail
+  find "$1" -type d -d -print0 | xargs -0 -n1 -I{} sh -c 'cd "{}" && gird_directory "{}"'
+  local exit="$?"
+  if [ "$exit" != '0' ]; then
+    exit "$exit"
+  fi
 }
 
 # subprocesses kill the parent to abort

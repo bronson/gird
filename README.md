@@ -91,13 +91,14 @@ including md5 and cksum.
 
 ## TODO
 
+* Replace `processing` with gird's actual action
 * Add --continue to keep gird running even if it finds inconsistencies
 * Add --reset to force update all girdfiles
 * Add filename tests for files and directories starting with hyphens
 * Test and document that shasum -c works on girdfiles
-* Add the summarize script
 * Add --version and --help
-* Add some tests to ensure sane errors are printed (and no process term warning on abort)
+* Put the summarize script in contrib
+* Make sure all uses of test_expect_code ensure some form of error output exists
 
 Wishlist:
 

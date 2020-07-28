@@ -24,6 +24,18 @@ test_expect_success "Running in empty dir" "
   rm tt Girdsums
 "
 
+# runs all directories specified on the command line
+test_expect_success "Abort prevents further directories from being checked" "
+  mkdir a b c &&
+  touch {a..c}/Girdsums &&
+  gird a b c >stdout &&
+  echo processing a >expected &&
+  echo processing b >>expected &&
+  echo processing c >>expected &&
+  test_cmp expected stdout &&
+  rm -r a b c expected stdout
+"
+
 test_expect_success "Processes hidden files" "
   touch .hidden &&
   gird &&
@@ -105,9 +117,29 @@ test_expect_success "Correctly selects init starting mode" "
   rm -r testdir expected stderr
 "
 
-# Can automatically select running in one mode, then switch to another
+# fill in verifydir with already-existing Girdfiles
+test_expect_success "Selects the correct starting mode for each dir" "
+  mkdir -p initdir/testdir verifydir/testdir ignoredir/testdir &&
+  touch verifydir/testdir/Girdsums &&
+  echo 'da39a3ee5e6b4b0d3255bfef95601890afd80709  testdir/Girdsums' > verifydir/Girdsums &&
+  gird initdir verifydir > stdout &&
+  echo processing initdir/testdir > expected
+  echo processing initdir >> expected
+  echo processing verifydir/testdir >> expected
+  echo processing verifydir >> expected
+  test_cmp expected stdout &&
+  test_cmp initdir/Girdsums verifydir/Girdsums &&
+  [ ! -f ignoredir/Girdsums ] &&
+  rm -r initdir verifydir ignoredir expected stdout
+"
 
-# But won't override what we're told to do on the command line
+# gird used to try a, b, and c, even if a aborted.
+test_expect_success "Abort prevents further directories from being checked" "
+  test_expect_code 1 bash -c 'gird a b c 2>stderr' &&
+  echo 'find: a: No such file or directory' > expected &&
+  test_cmp expected stderr &&
+  rm expected stderr
+"
 
 # test_expect_success "Correctly chooses verify" "
 #   mkdir testdir &&
