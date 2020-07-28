@@ -44,6 +44,15 @@ test_expect_success "Abort prevents further directories from being checked" "
   rm expected stderr
 "
 
+# a doesn't exist, b is missing a Girdsums, c has an incorrect Girdsums, d doesn't exist
+test_expect_success "User can force processing to continue" "
+  mkdir b c &&
+  touch b/testfile c/testfile &&
+  echo '03cfd743661f07975fa2f1220c5194cbaff48451  file1' > c/Girdsums && # incorrect sum
+  test_expect_code 1 bash -c 'gird --verify --continue a b c d 2>stderr' &&
+  test_cmp "$SHARNESS_TEST_DIRECTORY/fixtures/example-stderr.txt" stderr &&
+  rm -r b c stderr
+"
 
 test_expect_success "Processes hidden files" "
   touch .hidden &&

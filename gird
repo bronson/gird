@@ -16,8 +16,12 @@
 gird_directory () {
   die () {
     echo "$@" >&2
-    kill $ogpid
-    exit 255 # 255 tells xargs to quit immediately
+    if [ -z "$should_continue" ]; then
+      kill $ogpid
+      exit 255 # 255 tells xargs to quit immediately
+    else
+      exit 0
+    fi
   }
 
   local path="$1"
@@ -60,6 +64,7 @@ gird_directory () {
 export -f gird_directory
 
 process_path() {
+  export should_continue
   export mode="$forcemode"
   if [ -z "$mode" ]; then
     if [ -f "$1/Girdsums" ]; then
@@ -73,7 +78,11 @@ process_path() {
   find "$1" -type d -d -print0 | xargs -0 -n1 -I{} sh -c 'cd "{}" && gird_directory "{}"'
   local exit="$?"
   if [ "$exit" != '0' ]; then
-    exit "$exit"
+    if [ -n "$should_continue" ]; then
+      exit_value=1
+    else
+      exit "$exit"
+    fi
   fi
 }
 
@@ -86,13 +95,13 @@ trap abort TERM
 
 export ogpid=$$ # to abort, kill this pid
 let count=0
+let exit_value=0
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -i|--init) forcemode='initializing'; shift;;
     -s|--verify|--scan) forcemode='verifying'; shift;;
-    # -v|--verbose)
-    # --version)
+    -c|--continue) should_continue=1; shift;;
     # --pidfile=*) pidfile="${1#*=}"; shift 1;;
     # --pidfile) echo "$1 requires an argument" >&2; exit 1;;
     -*) echo "unknown option: $1" >&2; exit 1;;
@@ -102,4 +111,8 @@ done
 
 if [ "$count" -eq 0 ]; then
   process_path '.'
+fi
+
+if [ -n "$exit_value" ]; then
+  exit "$exit_value"
 fi
