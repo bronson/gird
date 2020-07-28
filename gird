@@ -25,6 +25,7 @@ gird_directory () {
   }
 
   local path="$1"
+  cd "$path"
 
   if [ -e Girdsums.inprogress ]; then
     die "$path: Girdsums.inprogress already exists. Is another Gird running? Exiting."
@@ -55,7 +56,10 @@ gird_directory () {
     local differences="$(diff -u Girdsums Girdsums.inprogress)"
     rm Girdsums.inprogress
     if [ -n "$differences" ]; then
-      die "$path: gird verification failed:"'\n'"$(echo "$differences" | grep '^[+-][0-9A-Fa-f]')"
+      die "$(
+        echo "$path: gird verification failed:"
+        echo "$differences" | grep '^[+-][0-9A-Fa-f]'
+      )"
     fi
   else
     mv Girdsums.inprogress Girdsums
@@ -75,7 +79,7 @@ process_path() {
   fi
 
   set -o pipefail
-  find "$1" -type d -d -print0 | xargs -0 -n1 -I{} sh -c 'cd "{}" && gird_directory "{}"'
+  find "$1" -type d -d -print0 | xargs -0 -n1 -I{} bash -c 'gird_directory "$@"' _ {}
   local exit="$?"
   if [ "$exit" != '0' ]; then
     if [ -n "$should_continue" ]; then

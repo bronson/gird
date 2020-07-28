@@ -91,11 +91,9 @@ including md5 and cksum.
 
 ## TODO
 
-* Add filename tests for files and directories starting with hyphens
 * Test and document that shasum -c works on girdfiles
 * Add --version and --help
 * Put the summarize script in contrib
-* Add filename tests for files and directories with double quotes in the name
 
 Wishlist:
 
@@ -114,6 +112,7 @@ Wishlist:
     * played with this a bit but it was rubbing sharness the wrong way. Prob not worth the time.
   * is there an easy way to have each test_expect_success to run in its own subdirectory?
     * right now, an aborted test early in the file causes a cascade of meaningless failures
+  * poor documentation on how to write tests
 
 Non-features:
 

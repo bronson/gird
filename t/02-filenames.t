@@ -2,6 +2,10 @@
 
 test_description="Ensures we can handle bizarre file and directory names"
 
+# These tests are very important.
+# Because Gird is used in archive environments with a few
+# bizarrely-named files, it needs to get this right.
+
 . sharness.sh
 
 # Probably need to disable this test on Windows
@@ -23,6 +27,7 @@ test_description="Ensures we can handle bizarre file and directory names"
   # '\\\"' "\\\'" \
 
 for evilname in \
+  '\$f' \
   " a b   c " \
   "'a'" \
   '\"a\"' \
@@ -37,28 +42,21 @@ for evilname in \
     gird &&
     echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  $evilname\" > tt &&
     test_cmp tt Girdsums &&
-    rm -- tt \"$evilname\" Girdsums &&
-    echo LISTING:
-    find .
-    echo DONE
+    rm -- tt \"$evilname\" Girdsums
   "
 
   test_expect_success "Recurses into directory named \"$evilname\"" "
-    case \"$evilname\" in
-    \\\"*) : ;;  # can't currently recurse over directories with dblquote in their names
-    *)
-      mkdir -- \"$evilname\" &&
-      touch -- \"$evilname\"/hello &&
-      gird &&
-      echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  hello\" > tt &&
-      (cd -- \"$evilname\" && test_cmp ../tt Girdsums) &&
-      rm -r -- \"$evilname\" Girdsums tt
-    esac
+    mkdir -- \"$evilname\" &&
+    touch -- \"$evilname\"/hello &&
+    gird &&
+    echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  hello\" > tt &&
+    (cd -- \"$evilname\" && test_cmp ../tt Girdsums) &&
+    rm -r -- \"$evilname\" Girdsums tt
   "
 
   test_expect_success "Runs on directory named \"$evilname\"" "
     case \"$evilname\" in
-    -*|\\\"*) : ;;  # gird doesn't support directories with leading hyphens on the command line
+    -*) : ;;  # gird doesn't support directories with leading hyphens on the command line
     *)
       mkdir -- \"$evilname\" &&
       touch -- \"$evilname\"/hello &&

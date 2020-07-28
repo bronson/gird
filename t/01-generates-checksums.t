@@ -151,11 +151,14 @@ test_expect_success "Selects the correct starting mode for each dir" "
   rm -r initdir verifydir ignoredir expected stdout
 "
 
-# test_expect_success "Correctly chooses verify" "
-#   mkdir testdir &&
-#   touch testdir/testfile &&
-#   touch Girdfile &&
-#   test_expect_code 1 gird 2>stderr &&
+# test_expect_success "Can reset the entire directory" "
+#   mkdir -p badgird nogird goodgird &&
+#   touch badgird/Girdsums badgird/file3 nogird/file3 goodgird/file3 &&
+#   echo '03cfd743661f07975fa2f1220c5194cbaff48451  file3' > badgird/Girdsums &&
+#   echo 'da39a3ee5e6b4b0d3255bfef95601890afd80709  file3' > goodgird/Girdsums &&
+#   test_pause &&
+#   gird --reset . &&
+#   rm -r badgird nogird goodgird
 # "
 
 test_done
