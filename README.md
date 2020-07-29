@@ -34,7 +34,7 @@ To generate checksums:
 gird Photos
 ```
 
-This creates a .sha1sums file containing the SHA for each file in Photos.
+This creates a Girdsums file containing the SHA for each file in Photos.
 It then operates recursively on all subdirectories, sorted alphabetically.
 
 Running 'gird' without arguments selectes the current directory, identical to typing `gird .`
@@ -49,7 +49,7 @@ To verify checksums, run same command:
 gird Photos
 ```
 
-Gird automatically decides whether it's adding or verifying checksums by the presences of a .sha1sums file in the first directory it processes.
+Gird automatically decides whether it's adding or verifying checksums by the presences of a Girdsums file in the first directory it processes.
 
 ## Motivation
 
@@ -74,8 +74,9 @@ Gird is a narrow set of suspenders in your belt-and-suspenders setup.
 
 _Isn't this basically what Git does?_
 
-I suppose, and DAGs are awesome. But git also copies the full contents of the files.
-Gird is meant for environments where files are gigantic and backups are offsite.
+Gird checksums subdirectories and creates a DAG of trust, quite a bit like git.
+However, git also duplicates the full contents of the files, which can be a burden.
+Gird is meant for environments where the files are gigantic and the backups are offsite.
 
 ## Licese
 
@@ -104,6 +105,8 @@ Wishlist:
   * Maybe just a feedthrough for `xargs -P`. Or maybe take advantage of `parallel` if it's installed.
   * Doesn't seem worth it since a single thread still saturates every SSD I have.
 * Consider using Blake https://blake2.net. It's fast!
+* Maybe make it possible to specify directories with leading hyphens on the command line? `gird -mydir-`
+  * Of course `cd -- -mydir- ; gird` works just fine. This is probably not worth fixing.
 * Look for sharness alternatives. Does Git's native test runner have the same oddball issues?
   * can't use process substitution in a test block
   * test block errors are very wrong: `sharness.sh: eval: line 383: syntax error`
@@ -113,6 +116,8 @@ Wishlist:
   * is there an easy way to have each test_expect_success to run in its own subdirectory?
     * right now, an aborted test early in the file causes a cascade of meaningless failures
   * poor documentation on how to write tests
+  * seems to run my tests unders zsh even though /bin/sh is bash.
+    * `SHELL=/bin/bash bash 02-test.t -v` seems to force bash.
 
 Non-features:
 
