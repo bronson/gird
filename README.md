@@ -9,10 +9,6 @@ a file named Girdsums. All subdirectories are processed too.
 Later, Gird can check these hashes and verify that the contents of
 the files are identical to when they were first girded.
 
-## BRAND NEW BRAND NEW BRAND NEW
-
-Don't use this repo yet
-
 ## Installation
 
 Copy the `gird` file somewhere on your path.

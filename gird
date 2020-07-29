@@ -13,6 +13,8 @@
 #       If the directory contents are different, PRINT A PANIC
 #       If any file digests have changed, PRINT A PANIC
 
+version=0.9
+
 gird_directory () {
   die () {
     echo "$@" >&2
@@ -106,6 +108,7 @@ while [ "$#" -gt 0 ]; do
     -i|--init) forcemode='initializing'; shift;;
     -s|--verify|--scan) forcemode='verifying'; shift;;
     -c|--continue) should_continue=1; shift;;
+    --version) echo "Gird $version"; exit;;
     # --pidfile=*) pidfile="${1#*=}"; shift 1;;
     # --pidfile) echo "$1 requires an argument" >&2; exit 1;;
     -*) echo "unknown option: $1" >&2; exit 1;;
