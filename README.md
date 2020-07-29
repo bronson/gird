@@ -105,6 +105,7 @@ Wishlist:
   * Maybe just a feedthrough for `xargs -P`. Or maybe take advantage of `parallel` if it's installed.
   * Doesn't seem worth it since a single thread still saturates every SSD I have.
 * Consider using Blake https://blake2.net. It's fast!
+* `make watch` should store its tmpdir somewhere else so it's possible to still run tests manually
 * Maybe make it possible to specify directories with leading hyphens on the command line? `gird -mydir-`
   * Of course `cd -- -mydir- ; gird` works just fine. This is probably not worth fixing.
 * Look for sharness alternatives. Does Git's native test runner have the same oddball issues?
@@ -118,6 +119,8 @@ Wishlist:
   * poor documentation on how to write tests
   * seems to run my tests unders zsh even though /bin/sh is bash.
     * `SHELL=/bin/bash bash 02-test.t -v` seems to force bash.
+  * Some tests succeed when run in bash but fail when run in prove.
+    * See 02-filenames.t for a heinous workaround.
 
 Non-features:
 

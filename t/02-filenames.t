@@ -8,20 +8,6 @@ test_description="Ensures we can handle bizarre file and directory names"
 
 . sharness.sh
 
-# Probably need to disable this test on Windows
-# TODO: yikes, is this a sharness problem?
-#    This test works when run directly but not when run by `prove`.
-#    The \\\\\\\\ works but it can't possibly be intentional.
-#
-# filename="\b"
-# test_expect_success "Handles backslashes in filenames" "
-#   touch \"$filename\" &&
-#   gird &&
-#   echo \"\\da39a3ee5e6b4b0d3255bfef95601890afd80709  \\\\\\\\b\" > expected &&
-#   test_cmp expected Girdsums &&
-#   rm expected \"$filename\" Girdsums
-# "
-
 for evilname in \
   " a b   c " \
   "'a'" \
@@ -37,14 +23,26 @@ for evilname in \
   '--help' \
 ; do
 
-  # a backslash at the start of the sha indicates the filename needs
-  # to be unescaped: https://metacpan.org/release/Digest-SHA/source/shasum#L236
-  slash= ; [[ "$evilname" = \\\\* ]] && slash='\\'
+  slash= prove=
+  if [[ "$evilname" = \\\\* ]]; then
+    # a backslash at the start of the sha indicates the filename needs
+    # to be unescaped: https://metacpan.org/release/Digest-SHA/source/shasum#L236
+    slash='\\'
+
+    prove="$slash"
+    if [ -n "$VERSIONER_PERL_VERSION" ]; then
+      # we're running under Prove. For some reason Prove requires a double-escape.
+      # I'm not sure if this is a bug in my code, sharness, or prove.
+      # (if this var isn't reliable, there are some other env vars only seen under prove:
+      #     HARNESS_ACTIVE,HARNESS_VERSION,TAP_VERSION,PERL5LIB,PERL_*)
+      prove="$slash$slash"
+    fi
+  fi
 
   test_expect_success "Can process files named \"$evilname\"" "
     touch -- \"$evilname\" &&
     gird &&
-    echo \"${slash}da39a3ee5e6b4b0d3255bfef95601890afd80709  $slash$evilname\" > expected &&
+    echo \"${slash}da39a3ee5e6b4b0d3255bfef95601890afd80709  $prove$evilname\" > expected &&
     test_cmp expected Girdsums &&
     rm -- expected \"$evilname\" Girdsums
   "
