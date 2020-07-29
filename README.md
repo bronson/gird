@@ -134,6 +134,7 @@ Wishlist:
   * poor documentation on how to write tests
   * seems to run my tests unders zsh even though /bin/sh is bash.
     * `SHELL=/bin/bash bash 02-test.t -v` seems to force bash.
+    * Or maybe it's that sometimes it's invoked as /bin/bash (prove) and sometimes as /bin/sh (make)
   * Some tests succeed when run in bash but fail when run in prove.
     * See 02-filenames.t for a heinous workaround.
   * sharness doesn't support --stress?
