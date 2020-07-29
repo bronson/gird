@@ -44,6 +44,7 @@ for evilname in \
     gird &&
     echo \"${slash}da39a3ee5e6b4b0d3255bfef95601890afd80709  $prove$evilname\" > expected &&
     test_cmp expected Girdsums &&
+    shasum -c Girdsums &&
     rm -- expected \"$evilname\" Girdsums
   "
 

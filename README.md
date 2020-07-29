@@ -37,19 +37,35 @@ gird Photos
 This creates a Girdsums file containing the SHA for each file in Photos.
 It then operates recursively on all subdirectories, sorted alphabetically.
 
-Running 'gird' without arguments selectes the current directory, identical to typing `gird .`
-
-```bash
-gird
-```
-
-To verify checksums, run same command:
+To verify checksums, just run the command again. Since there's now a Girdsums file in that directory, Gird knows it should verify the Girdsums files rather than creating them.
 
 ```bash
 gird Photos
 ```
 
-Gird automatically decides whether it's adding or verifying checksums by the presences of a Girdsums file in the first directory it processes.
+Or you can be explicit so Gird will abort if it doesn't find existing checksums:
+
+```bash
+gird --verify Photos
+```
+
+Running 'gird' without arguments starts in the current directory, identical to typing `gird .`
+
+```bash
+gird
+```
+
+Gird processes hidden files and directories and skips files named `.DS_Store`.
+
+## Girdsums File
+
+Girdsums stores the SHA checksums of each file in the current directory (including hidden files, but ignoring `.DS_Store`) in the `shasum` command's native format.
+
+In addition to using `gird --verify`, you can check Girdsums files by passing them to shasum:
+
+```bash
+shasum -c Girdsums
+```
 
 ## Motivation
 
@@ -92,7 +108,6 @@ including md5 and cksum.
 
 ## TODO
 
-* Test and document that shasum -c works on girdfiles
 * Add --version and --help
 * Put the summarize script in contrib
 
@@ -121,6 +136,7 @@ Wishlist:
     * `SHELL=/bin/bash bash 02-test.t -v` seems to force bash.
   * Some tests succeed when run in bash but fail when run in prove.
     * See 02-filenames.t for a heinous workaround.
+  * sharness doesn't support --stress?
 
 Non-features:
 

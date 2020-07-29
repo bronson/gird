@@ -63,6 +63,7 @@ test_expect_success "Girds Girdsum files one directory deeper" "
   gird --verify &&
   grep deep-tree/Girdsums Girdsums &&
   grep dirone/Girdsums deep-tree/Girdsums &&
+  shasum -c Girdsums &&
   rm -r deep-tree
 "
 
