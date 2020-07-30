@@ -108,11 +108,12 @@ Cryptographic integrity is _not_ a design goal.
 It uses sha1 because, at least on my computers, it's significantly faster than all other algorithms,
 including md5 and cksum.
 
-## TODO
+Zero interest in error correction. There are other tools for that.
+Gird is for detection so you can restore the corrupted files from backups.
 
-* Put the summarize script in contrib
+There are a number of limitations that are gated on being written in a better programming language (such as a proper progress display, keeping track of runtime metrics, less important things like that). However, because Gird is currently faster than any SSDs I have, there's very little incentive to do this.
 
-Wishlist:
+## Wishlist
 
 * Maybe make installation easier/better/more explicit
 * Maybe Add --reset to force update all girdfiles
@@ -139,10 +140,3 @@ Wishlist:
   * Some tests succeed when run in bash but fail when run in prove.
     * See 02-filenames.t for a heinous workaround.
   * sharness doesn't support --stress?
-
-Non-features:
-
-* Will not attempt error correction. There are other tools for that.
-  * Better to just restore the corrupted files from backups.
-* Not until rewritten in a real programming language:
-  * Won't attempt to print runtime statistics or decent progress info
