@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# Run this script to generate hashes for every file in a directory tree:
+# Run this script to generate sha1 checksums for every file in a directory tree:
 #    gird ~/Photos
 # Each directory will now have a file named Girdsums in it.
 #
 # Run gird again to verify the hashes and ensure the directory contents haven't changed.
 # Gird will not modify an existing Girdsums file unless forced.
-#
-# We compute the checksums for the files in this directory
-#   If there's an existing checksums file
-#     Then compare it to the new checksums
-#       If the directory contents are different, PRINT A PANIC
-#       If any file digests have changed, PRINT A PANIC
 
 version=0.9
+
+gird_help () {
+cat <<EOL
+usage: gird [--init|--verify] [--continue] [directory ...]
+EOL
+}
 
 gird_directory () {
   die () {
@@ -109,6 +109,7 @@ while [ "$#" -gt 0 ]; do
     -s|--verify|--scan) forcemode='verifying'; shift;;
     -c|--continue) should_continue=1; shift;;
     --version) echo "Gird $version"; exit;;
+    -h|--help) gird_help; exit;;
     # --pidfile=*) pidfile="${1#*=}"; shift 1;;
     # --pidfile) echo "$1 requires an argument" >&2; exit 1;;
     -*) echo "unknown option: $1" >&2; exit 1;;

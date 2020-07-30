@@ -1,5 +1,9 @@
 # Gird
 
+```txt
+usage: gird [--init|--verify] [--continue] [directory ...]
+```
+
 When you're storing files for a long time, tiny corruptions can add up.
 Gird adds checksums next to each file so those corruptions can be found
 soon after they happen instead of years later by accident.
@@ -31,9 +35,11 @@ gird Photos
 ```
 
 This creates a Girdsums file containing the SHA for each file in Photos.
-It then operates recursively on all subdirectories, sorted alphabetically.
+It then operates recursively on all subdirectories in the given directory.
 
-To verify checksums, just run the command again. Since there's now a Girdsums file in that directory, Gird knows it should verify the Girdsums files rather than creating them.
+To verify checksums, just run the command again.
+Since there's now a Girdsums file in that directory, Gird knows it should
+verify the Girdsums files rather than creating them.
 
 ```bash
 gird Photos
@@ -104,7 +110,6 @@ including md5 and cksum.
 
 ## TODO
 
-* Add --version and --help
 * Put the summarize script in contrib
 
 Wishlist:
