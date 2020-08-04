@@ -59,8 +59,8 @@ test_expect_success "Rejects a girdfile when creating" "
 
 test_expect_success "Girds Girdsum files one directory deeper" "
   cp -r "$SHARNESS_TEST_DIRECTORY/fixtures/deep-tree" . &&
-  gird --init && # test both
-  gird --verify &&
+  gird --init . && # test both
+  gird --verify . &&
   grep deep-tree/Girdsums Girdsums &&
   grep dirone/Girdsums deep-tree/Girdsums &&
   shasum -c Girdsums &&
