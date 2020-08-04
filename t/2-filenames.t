@@ -2,17 +2,18 @@
 
 test_description="Ensures we can handle bizarre file and directory names"
 
-# These tests are very important.
-# Because Gird is used in archive environments with a few
-# bizarrely-named files, it needs to get this right.
+# These tests are important.
+# Because Gird is used in archive environments with bizarrely-named files,
+# it needs to get this right.
 
 . sharness.sh
 
 # Somehow it depends on whether we're invoked as /bin/sh or /bin/bash.
-#   (prove and `make test` both seem to invoke as /bin/sh)
+#   (prove and `make test` both seem to invoke the script as /bin/sh)
 # I'm not sure if this is a bug in my code, sharness, or prove.
 shellslash='\\'
 if [[ "$(ps -o command $$ | tail -1)" == '/bin/sh '* ]]; then
+  # we were invoked as /bin/sh instead of /bin/bash
   shellslash='\\\\'
 fi
 

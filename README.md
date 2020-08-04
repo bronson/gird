@@ -1,7 +1,7 @@
 # Gird
 
 ```txt
-usage: gird [--init|--verify] [--continue|--abort] [directory ...]
+usage: gird [--init|--verify|--reset] [--continue|--abort] [directory ...]
 ```
 
 When you're storing files for a long time, tiny corruptions can add up.
@@ -28,14 +28,25 @@ make
 
 ## Usage
 
-To generate checksums:
+### Initialize
+
+To generate checksums for a directory named `Photos`:
 
 ```bash
 gird Photos
 ```
 
 This creates a Girdsums file containing the SHA for each file in Photos.
-It then operates recursively on all subdirectories in the given directory.
+It also operates recursively on all subdirectories in the given directory.
+
+In addition to having Gird guess that you intended to initialize the directory,
+you can specify the action explicitly:
+
+```bash
+gird --init Photos
+```
+
+### Verify
 
 To verify checksums, just run the command again.
 Since there's now a Girdsums file in that directory, Gird knows it should
@@ -50,6 +61,30 @@ Or you can be explicit so Gird will abort if it doesn't find existing checksums:
 ```bash
 gird --verify Photos
 ```
+
+### Reset
+
+If a directory's contents have changed, and you like this, you can reset
+just the changed directory.
+This ensures your archive remains consistent without having to recompute
+every file.
+
+Let's say that a file in `Photos/Canon/SX10/April` has been updated, and
+`gird --verify` is now complaining.
+To update the Girdsums files, run this:
+
+```bash
+gird --reset Photos/Canon/SX10/April
+```
+
+Or this will do the same thing:
+
+```bash
+cd Photos/Canon/SX10/April
+gird --reset
+```
+
+### Trivia
 
 Running 'gird' without arguments starts in the current directory, identical to typing `gird .`
 
@@ -96,10 +131,6 @@ Gird checksums subdirectories and creates a DAG of trust, quite a bit like git.
 However, git also duplicates the full contents of the files, which can be a burden.
 Gird is meant for environments where the files are gigantic and the backups are offsite.
 
-## Licese
-
-MIT
-
 ## Thoughts
 
 This script is intended to protect against driver bugs and cosmic rays.
@@ -113,18 +144,26 @@ Gird is for detection so you can restore the corrupted files from backups.
 
 There are a number of limitations that are gated on being written in a better programming language (such as a proper progress display, keeping track of runtime metrics, less important things like that). However, because Gird is currently faster than any SSDs I have, there's very little incentive to do this.
 
-## Wishlist
+## Licese
 
+MIT
+
+## Very Wishlist
+
+Here are some ideas that didn't make the initial cut.
+
+* Rather than aborting, Gird should probably keep running and print every error it can find.
+  (so, add an --abort mode, and make --continue the default)
 * Maybe make installation easier/better/more explicit
-* Maybe Add --reset to force update all girdfiles
-  * Is this really worth adding? `find . -name Girdsums -delete` is pretty darn easy.
-* Maybe add a -j option to fork multiple jobs?
-  * Maybe just a feedthrough for `xargs -P`. Or maybe take advantage of `parallel` if it's installed.
-  * Doesn't seem worth it since a single thread still saturates every SSD I have.
-* Consider using Blake https://blake2.net. It's fast!
-* `make watch` should store its tmpdir somewhere else so it's possible to still run tests manually
+* Is there any performance benefit to removing -n1 from xargs and looping ourselves?
 * Maybe make it possible to specify directories with leading hyphens on the command line? `gird -mydir-`
-  * Of course `cd -- -mydir- ; gird` works just fine. This is probably not worth fixing.
+  * Since `cd -- -mydir- ; gird` works just fine, this is probably not worth fixing.
+* Maybe add a -j option to fork multiple jobs?
+  * Doesn't seem worth it since a single thread still saturates every SSD I have.
+  * This would probably just be a feedthrough for `xargs -P`.
+    * Except before computing a Girdsums file, need to ensure all subdirs are complete first.
+    * So, probably not worth the effort until rewritten in a real programming langauge.
+* Consider using Blake https://blake2.net. It's fast!
 * Look for sharness alternatives. Does Git's native test runner have the same oddball issues?
   * can't use process substitution in a test block
   * test block errors are very wrong: `sharness.sh: eval: line 383: syntax error`
@@ -140,3 +179,4 @@ There are a number of limitations that are gated on being written in a better pr
   * Some tests succeed when run in bash but fail when run in prove.
     * See 02-filenames.t for a heinous workaround.
   * sharness doesn't support --stress?
+  * `make watch` should store its tmpdir somewhere else so it's possible to still run tests manually
