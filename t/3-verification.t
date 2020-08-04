@@ -5,14 +5,13 @@ test_description="Ensures gird can verify its own output"
 . sharness.sh
 
 test_expect_success "Aborts when it finds an inprogress file" "
-  touch Girdsums.inprogress &&
+  touch Girdsums-inprogress &&
   touch empty &&
   test_expect_code 1 gird 2>stderr &&
-  touch expected &&
-  echo '.: Girdsums.inprogress already exists. Is another Gird running? Exiting.' > expected &&
+  echo '.: Girdsums-inprogress already exists. Is another Gird running? Exiting.' > expected &&
   test_cmp expected stderr &&
   [ ! -e Girdsums ] &&
-  rm expected stderr Girdsums.inprogress empty
+  rm expected stderr Girdsums-inprogress empty
 "
 
 test_expect_success "Silent success when it finds a correct Girdfile" "
@@ -65,6 +64,23 @@ test_expect_success "Girds Girdsum files one directory deeper" "
   grep dirone/Girdsums deep-tree/Girdsums &&
   shasum -c Girdsums &&
   rm -r deep-tree
+"
+
+# b is processed last, and produces no error.
+# but since a has an error, the command must return an error.
+test_expect_success "If it finds both error and valid Girdsums files, returns an error" "
+  mkdir a b &&
+  touch a/mt b/mt &&
+  gird --init a b &&
+  echo hi > a/mt &&
+  test_expect_code 1 gird --verify --continue a b > output 2>&1 &&
+  echo 'verifying a' > expected &&
+  echo 'a: gird verification failed:' >> expected &&
+  echo '-da39a3ee5e6b4b0d3255bfef95601890afd80709  mt' >> expected &&
+  echo '+55ca6286e3e4f4fba5d0448333fa99fc5a404a73  mt' >> expected &&
+  echo 'verifying b' >> expected &&
+  test_cmp expected output &&
+  rm -r a b output
 "
 
 test_done

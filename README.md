@@ -1,7 +1,7 @@
 # Gird
 
 ```txt
-usage: gird [--init|--verify] [--continue] [directory ...]
+usage: gird [--init|--verify] [--continue|--abort] [directory ...]
 ```
 
 When you're storing files for a long time, tiny corruptions can add up.

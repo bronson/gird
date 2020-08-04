@@ -11,7 +11,7 @@ version=0.9
 
 gird_help () {
 cat <<EOL
-usage: gird [--init|--verify] [--continue] [directory ...]
+usage: gird [--init|--verify] [--continue|--abort] [directory ...]
 EOL
 }
 
@@ -19,7 +19,6 @@ gird_directory () {
   die () {
     echo "$@" >&2
     if [ -z "$should_continue" ]; then
-      kill $ogpid
       exit 255 # 255 tells xargs to quit immediately
     else
       exit 0
@@ -29,8 +28,8 @@ gird_directory () {
   local path="$1"
   cd "$path"
 
-  if [ -e Girdsums.inprogress ]; then
-    die "$path: Girdsums.inprogress already exists. Is another Gird running? Exiting."
+  if [ -e Girdsums-inprogress ]; then
+    die "$path: Girdsums-inprogress already exists. Is another Gird running? Exiting."
   fi
 
   if [ "$mode" == initializing ] && [ -f Girdsums ]; then
@@ -45,18 +44,19 @@ gird_directory () {
   # add the files in the current directory
   find . -type f -maxdepth 1 \
     -not -name Girdsums \
-    -not -name Girdsums.inprogress \
+    -not -name Girdsums-inprogress \
+    -not -name Girdsums-stderr \
     -not -name .DS_Store \
-    -print0 | sort -z | xargs -0 shasum -a 1 | sed 's| ./| |' > Girdsums.inprogress
+    -print0 | sort -z | xargs -0 shasum -a 1 | sed 's| ./| |' > Girdsums-inprogress
   # add Girdsums files in subdirectories
   for file in */Girdsums; do
     [ -e "$file" ] || continue # bash returns the unexpanded string when no files match
-    shasum -a 1 "$file" >> Girdsums.inprogress
+    shasum -a 1 "$file" >> Girdsums-inprogress
   done
 
   if [ -e Girdsums ]; then
-    local differences="$(diff -u Girdsums Girdsums.inprogress)"
-    rm Girdsums.inprogress
+    local differences="$(diff -u Girdsums Girdsums-inprogress)"
+    rm Girdsums-inprogress
     if [ -n "$differences" ]; then
       die "$(
         echo "$path: gird verification failed:"
@@ -64,7 +64,7 @@ gird_directory () {
       )"
     fi
   else
-    mv Girdsums.inprogress Girdsums
+    mv Girdsums-inprogress Girdsums
   fi
 }
 export -f gird_directory
@@ -81,46 +81,45 @@ process_path() {
   fi
 
   set -o pipefail
-  find "$1" -type d -d -print0 | xargs -0 -n1 -I{} bash -c 'gird_directory "$@"' _ {}
-  local exit="$?"
-  if [ "$exit" != '0' ]; then
+  # can't tell if subprocesses encountered errors so we save stderr and check for content there
+  find "$1" -type d -d -print0 | xargs -0 -n1 -I{} bash -c 'gird_directory "$@"' _ {} 2>Girdsums-stderr
+  local exitcode="$?"
+  local girderr="$([ -s Girdsums-stderr ] && echo yes)"
+  cat Girdsums-stderr >&2
+  rm Girdsums-stderr
+
+  if [ "$exitcode" != '0' ] || [ -n "$girderr" ]; then
     if [ -n "$should_continue" ]; then
-      exit_value=1
+      let err_count++
     else
-      exit "$exit"
+      exit "$exitcode"
     fi
   fi
 }
 
-# subprocesses kill the parent to abort
-# unless we trap the signal, bash prints a process terminated warning
-abort() {
-  exit 1
-}
-trap abort TERM
-
-export ogpid=$$ # to abort, kill this pid
-let count=0
-let exit_value=0
+arg_count=0 # number of arguments processed
+err_count=0 # number of errors encountered (where --abort would exit immediately)
+should_continue= # '' means abort if we find an error, '1' means keep processing
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -i|--init) forcemode='initializing'; shift;;
     -s|--verify|--scan) forcemode='verifying'; shift;;
+    -1|--abort) should_continue=; shift;;
     -c|--continue) should_continue=1; shift;;
     --version) echo "Gird $version"; exit;;
     -h|--help) gird_help; exit;;
     # --pidfile=*) pidfile="${1#*=}"; shift 1;;
     # --pidfile) echo "$1 requires an argument" >&2; exit 1;;
     -*) echo "unknown option: $1" >&2; exit 1;;
-    *) let count++; process_path "$1"; shift;;
+    *) let arg_count++; process_path "$1"; shift;;
   esac
 done
 
-if [ "$count" -eq 0 ]; then
+if [ "$arg_count" -eq 0 ]; then
   process_path '.'
 fi
 
-if [ -n "$exit_value" ]; then
-  exit "$exit_value"
+if [ "$err_count" != '0' ]; then
+  exit 1
 fi
