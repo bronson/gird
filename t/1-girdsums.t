@@ -151,6 +151,26 @@ test_expect_success "Selects the correct starting mode for each dir" "
   rm -r initdir verifydir ignoredir expected stdout
 "
 
+test_expect_success "Girdsums files are created in hierarchy" "
+  mkdir -p a/a/a/a/a/a/a &&
+  touch a/a/a/a/a/a/a/emptyfile &&
+  gird --init &&
+  echo 'da39a3ee5e6b4b0d3255bfef95601890afd80709  emptyfile' > expected &&
+  test_cmp expected a/a/a/a/a/a/a/Girdsums &&
+  echo '92a76836c493f58229546705e0312a4d9f87da7a  a/Girdsums' > expected &&
+  test_cmp expected Girdsums &&
+  rm -r expected a Girdsums
+"
+
+test_expect_success "Girdsums files are created in hierarchy" "
+  mkdir -p a/a &&
+  gird --init &&
+  [ -z \"\$(cat a/a/Girdsums)\" ] &&
+  echo '99929660309feded68338fbdb5c729a20be2d0b4  a/Girdsums' > expected &&
+  test_cmp expected Girdsums &&
+  rm -r expected a Girdsums
+"
+
 # test_expect_success "Can reset the entire directory" "
 #   mkdir -p badgird nogird goodgird &&
 #   touch badgird/Girdsums badgird/file3 nogird/file3 goodgird/file3 &&
