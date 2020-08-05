@@ -51,7 +51,7 @@ gird_directory () {
   # add Girdsums files in subdirectories
   for file in */Girdsums; do
     [ -e "$file" ] || continue # bash returns the unexpanded string when no files match
-    shasum -a 1 "$file" >> Girdsums-inprogress
+    shasum -a 1 -- "$file" >> Girdsums-inprogress
   done
 
   if [ "$mode" != 'resetting' ] && [ -e Girdsums ]; then
