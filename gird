@@ -69,6 +69,23 @@ gird_directory () {
 }
 export -f gird_directory
 
+# pass a command's exit code as an arg and its stderr in Girdsums-stderr file
+# this function obeys the user's preference as to whether we abort immediately or keep running
+detect_abort() {
+  local exitcode="$1"
+  local girderr="$([ -s Girdsums-stderr ] && echo yes)"
+  cat Girdsums-stderr >&2
+  rm Girdsums-stderr
+
+  if [ "$exitcode" != '0' ] || [ -n "$girderr" ]; then
+    if [ -n "$should_continue" ]; then
+      let err_count++
+    else
+      exit "$exitcode"
+    fi
+  fi
+}
+
 process_path() {
   export should_continue
   export mode="$forcemode"
@@ -83,23 +100,13 @@ process_path() {
   set -o pipefail
   # can't tell if subprocesses encountered errors so we save stderr and check for content there
   find "$1" -type d -d -print0 | xargs -0 -n1 -I{} bash -c 'gird_directory "$@"' _ {} 2>Girdsums-stderr
-  local exitcode="$?"
-  local girderr="$([ -s Girdsums-stderr ] && echo yes)"
-  cat Girdsums-stderr >&2
-  rm Girdsums-stderr
-
-  if [ "$exitcode" != '0' ] || [ -n "$girderr" ]; then
-    if [ -n "$should_continue" ]; then
-      let err_count++
-    else
-      exit "$exitcode"
-    fi
-  fi
+  detect_abort "$?"
 }
 
 reset_path() {
   # run in a subprocess because gird_directory changes directories
-  (mode='resetting' gird_directory "$1") || let err_count++
+  (mode='resetting' gird_directory "$1" 2>Girdsums-stderr)
+  detect_abort "$?"
 
   # also reset all girdsums files up to the root
   if [ -f "$1/../Girdsums" ]; then
@@ -109,7 +116,7 @@ reset_path() {
 
 arg_count=0 # number of arguments processed
 err_count=0 # number of errors encountered (where --abort would exit immediately)
-should_continue= # '' means abort if we find an error, '1' means keep processing
+should_continue=1 # '' means abort if we find an error, '1' means keep processing
 action='process'
 
 while [ "$#" -gt 0 ]; do

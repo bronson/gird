@@ -62,6 +62,9 @@ Or you can be explicit so Gird will abort if it doesn't find existing checksums:
 gird --verify Photos
 ```
 
+Gird normally processes the entire directory (`--continue`). If you are
+doing a quick check and want to abort at the first error, run `gird --abort`.
+
 ### Reset
 
 If a directory's contents have changed, and you like this, you can reset
@@ -152,17 +155,15 @@ MIT
 
 Here are some ideas that didn't make the initial cut.
 
-* Rather than aborting, Gird should probably keep running and print every error it can find.
-  (so, add an --abort mode, and make --continue the default)
 * Maybe make installation easier/better/more explicit
 * Is there any performance benefit to removing -n1 from xargs and looping ourselves?
-* Maybe make it possible to specify directories with leading hyphens on the command line? `gird -mydir-`
-  * Since `cd -- -mydir- ; gird` works just fine, this is probably not worth fixing.
+* Maybe make it possible to specify directories with leading hyphens on the command line? `gird -- -mydir-`
+  * Since `cd -- -mydir- && gird` is equivalent and works fine, this is probably not worth fixing.
 * Maybe add a -j option to fork multiple jobs?
   * Doesn't seem worth it since a single thread still saturates every SSD I have.
-  * This would probably just be a feedthrough for `xargs -P`.
-    * Except before computing a Girdsums file, need to ensure all subdirs are complete first.
-    * So, probably not worth the effort until rewritten in a real programming langauge.
+  * Might be easy, just be a feedthrough for `xargs -P`.
+    * Except, before computing a Girdsums file, need to ensure all subdirs are complete first.
+    * Probably not worth the effort until rewritten in a real programming langauge.
 * Consider using Blake https://blake2.net. It's fast!
 * Look for sharness alternatives. Does Git's native test runner have the same oddball issues?
   * can't use process substitution in a test block
@@ -180,3 +181,4 @@ Here are some ideas that didn't make the initial cut.
     * See 02-filenames.t for a heinous workaround.
   * sharness doesn't support --stress?
   * `make watch` should store its tmpdir somewhere else so it's possible to still run tests manually
+  * Why does `prove *.t` show "Dubious, test returned 1 (wstat 256, 0x100)" instead of "fail"?

@@ -30,7 +30,7 @@ test_expect_success "Can reset a hierarchy" "
   echo 'hi' > tt/c/ca/emptyfile &&
   echo 'hi' > tt/b/ba/emptyfile &&      # don't reset these
   echo 'hi' > tt/c/ca/caa/emptyfile &&
-  gird --reset tt/a/aa/aaa tt/c/ca &&
+  gird --reset --abort tt/a/aa/aaa tt/c/ca &&
   echo '1dd97b158845477b9dd37beaeb99841097083134  a/Girdsums' > example &&
   echo 'c9d2f1d3d408be7f1bf6a34b0532b6d3dac27816  b/Girdsums' >> example &&
   echo 'cb8bfa251b732edc5cd535b0ac6a10f9088e627c  c/Girdsums' >> example &&

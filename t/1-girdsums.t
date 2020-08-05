@@ -38,7 +38,7 @@ test_expect_success "Multiple directories can be specified" "
 
 # gird used to try a, b, and c, even if a aborted.
 test_expect_success "Abort prevents further directories from being checked" "
-  test_expect_code 1 bash -c 'gird a b c 2>stderr' &&
+  test_expect_code 1 bash -c 'gird --abort a b c 2>stderr' &&
   echo 'find: a: No such file or directory' > expected &&
   test_cmp expected stderr &&
   rm expected stderr
