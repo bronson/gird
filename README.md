@@ -157,8 +157,6 @@ Here are some ideas that didn't make the initial cut.
 
 * Maybe make installation easier/better/more explicit
 * Is there any performance benefit to removing -n1 from xargs and looping ourselves?
-* Maybe make it possible to specify directories with leading hyphens on the command line? `gird -- -mydir-`
-  * Since `cd -- -mydir- && gird` is equivalent and works fine, this is probably not worth fixing.
 * Maybe add a -j option to fork multiple jobs?
   * Doesn't seem worth it since a single thread still saturates every SSD I have.
   * Might be easy, just be a feedthrough for `xargs -P`.

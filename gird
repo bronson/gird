@@ -25,22 +25,25 @@ gird_directory () {
     fi
   }
 
-  local path="$1"
-  cd "$path" 2>/dev/null || die "$path does not exist"
+  local path="${1#./}"  # find adds ./ to the front of each path
+  local showpath="$prefix/$path" # any path we show the user needs to include the prefix too
+  showpath="${showpath#./}" # if user specifies . on cmdline, there's another ./ to remove
+  showpath="${showpath%/.}" # find's final entry will be /., which is also redundant
+  cd -- "$path" 2>/dev/null || die "$showpath: does not exist"
 
   if [ -e Girdsums-inprogress ]; then
-    die "$path: Girdsums-inprogress already exists. Is another Gird running? Exiting."
+    die "$showpath: Girdsums-inprogress already exists. Is another Gird running? Exiting."
   fi
 
   if [ "$mode" == initializing ] && [ -f Girdsums ]; then
-    die "$path: existing Girdsums file"
+    die "$showpath: existing Girdsums file"
   fi
 
   if [ "$mode" == verifying ] && [ ! -f Girdsums ]; then
-    die "$path: missing Girdsums file"
+    die "$showpath: missing Girdsums file"
   fi
 
-  echo "$mode $path"
+  echo "$mode $showpath"
   # add the files in the current directory
   find . -type f -maxdepth 1 \
     -not -name Girdsums \
@@ -59,7 +62,7 @@ gird_directory () {
     rm Girdsums-inprogress
     if [ -n "$differences" ]; then
       die "$(
-        echo "$path: gird verification failed:"
+        echo "$showpath: gird verification failed:"
         echo "$differences" | grep '^[+-][0-9A-Fa-f]'
       )"
     fi
@@ -69,13 +72,18 @@ gird_directory () {
 }
 export -f gird_directory
 
-# pass a command's exit code as an arg and its stderr in Girdsums-stderr file
-# this function obeys the user's preference as to whether we abort immediately or keep running
+# pass a command's exit code and a file continaing its stderr output
+# it uses $should_continue to decide whether to abort immediately or keep running
 detect_abort() {
   local exitcode="$1"
-  local girderr="$([ -s Girdsums-stderr ] && echo yes)"
-  cat Girdsums-stderr >&2
-  rm Girdsums-stderr
+  local stderr="$2"
+  local girderr
+
+  if [ -s "$stderr" ]; then
+    girderr=yes
+  fi
+  cat "$stderr" >&2
+  rm "$stderr"
 
   if [ "$exitcode" != '0' ] || [ -n "$girderr" ]; then
     if [ -n "$should_continue" ]; then
@@ -88,6 +96,7 @@ detect_abort() {
 
 process_path() {
   export should_continue
+  export prefix="$1"
   export mode="$forcemode"
   if [ -z "$mode" ]; then
     if [ -f "$1/Girdsums" ]; then
@@ -97,16 +106,23 @@ process_path() {
     fi
   fi
 
-  set -o pipefail
-  # can't tell if subprocesses encountered errors so we save stderr and check for content there
-  find "$1" -type d -d -print0 | xargs -0 -n1 -I{} bash -c 'gird_directory "$@"' _ {} 2>Girdsums-stderr
-  detect_abort "$?"
+  ( # the presence of stderr determines whether subprocesses ran into an error
+    cd -- "$1" 2>/dev/null
+    if [ $? != 0 ]; then
+      echo "$1: does not exist" >&2
+      exit 1
+    fi
+    set -o pipefail
+    find . -type d -d -print0 | xargs -0 -n1 -I{} bash -c 'gird_directory "$@"' _ {}
+  ) 2>Girdsums-stderr
+
+  detect_abort "$?" Girdsums-stderr
 }
 
 reset_path() {
   # run in a subprocess because gird_directory changes directories
-  (mode='resetting' gird_directory "$1" 2>Girdsums-stderr)
-  detect_abort "$?"
+  (mode='resetting' prefix=. gird_directory "$1" 2>Girdsums-stderr)
+  detect_abort "$?" Girdsums-stderr
 
   # also reset all girdsums files up to the root
   if [ -f "$1/../Girdsums" ]; then
@@ -128,8 +144,9 @@ while [ "$#" -gt 0 ]; do
     -c|--continue) should_continue=1; shift;;
     --version) echo "Gird $version"; exit;;
     -h|--help) gird_help; exit;;
-    # --pidfile=*) pidfile="${1#*=}"; shift 1;;
-    # --pidfile) echo "$1 requires an argument" >&2; exit 1;;
+    --) shift; while [ "$#" -gt 0 ]; do \
+          let arg_count++; "${action}_path" "$1"; shift;
+        done ;;
     -*) echo "unknown option: $1" >&2; exit 1;;
     *) let arg_count++; "${action}_path" "$1"; shift;;
   esac

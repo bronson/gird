@@ -1,6 +1,6 @@
-find: a: No such file or directory
+a: does not exist
 b: missing Girdsums file
 c: gird verification failed:
 -03cfd743661f07975fa2f1220c5194cbaff48451  file1
 +da39a3ee5e6b4b0d3255bfef95601890afd80709  testfile
-find: d: No such file or directory
+d: does not exist

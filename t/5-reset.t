@@ -48,7 +48,7 @@ test_expect_success "Can reset a hierarchy" "
 # can abort when path isn't found
 test_expect_success "Fails OK when dir doesn't exist" "
   test_expect_code 1 gird --reset workdir 2>stderr &&
-  echo 'workdir does not exist' > expected &&
+  echo 'workdir: does not exist' > expected &&
   test_cmp expected stderr &&
   rm expected stderr
 "
@@ -57,7 +57,7 @@ test_expect_success "Fails OK when dir doesn't exist" "
 test_expect_success "Remembers error code" "
   mkdir b &&
   test_expect_code 1 gird --reset a b >stdout 2>stderr &&
-  echo 'a does not exist' > expected &&
+  echo 'a: does not exist' > expected &&
   test_cmp expected stderr &&
   echo 'resetting b' > expected &&
   test_cmp expected stdout &&

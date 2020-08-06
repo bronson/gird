@@ -36,10 +36,35 @@ test_expect_success "Multiple directories can be specified" "
   rm -r a b c expected stdout
 "
 
+test_expect_success "Can run on parent directory" "
+  mkdir -p workdir/a
+  cd workdir/a
+  gird .. >stdout
+  echo initializing ../a >expected &&
+  echo initializing .. >>expected &&
+  test_cmp expected stdout &&
+  cd ../.. &&
+  rm -r workdir
+"
+
+test_expect_success "Can run on multiple parent directories" "
+  mkdir -p workdir/a/b/c/d
+  cd workdir/a/b/c/d
+  gird ../../../.. >stdout
+  echo initializing ../../../../a/b/c/d >expected &&
+  echo initializing ../../../../a/b/c >>expected &&
+  echo initializing ../../../../a/b >>expected &&
+  echo initializing ../../../../a >>expected &&
+  echo initializing ../../../.. >>expected &&
+  test_cmp expected stdout &&
+  cd ../../../../.. &&
+  rm -r workdir
+"
+
 # gird used to try a, b, and c, even if a aborted.
 test_expect_success "Abort prevents further directories from being checked" "
   test_expect_code 1 bash -c 'gird --abort a b c 2>stderr' &&
-  echo 'find: a: No such file or directory' > expected &&
+  echo 'a: does not exist' > expected &&
   test_cmp expected stderr &&
   rm expected stderr
 "
@@ -90,7 +115,7 @@ test_expect_success "Handles multiple arguments" "
 # Ensure we do nothing if passed a file. Silence is acceptable.
 test_expect_success "Fails when passed a file" "
   touch afile &&
-  gird afile &&
+  test_expect_code 1 gird afile &&
   [ ! -e Girdsums ] &&
   rm afile
 "
@@ -110,7 +135,7 @@ test_expect_success "Warns about unrecognized arguments" "
 # the `find:` at the beginning of the error message is unfortunate but meh
 test_expect_success "Aborts if directory doesn't exist" "
   test_expect_code 1 bash -c 'gird noexisty 2>stderr'
-  echo 'find: noexisty: No such file or directory' > expected &&
+  echo 'noexisty: does not exist' > expected &&
   test_cmp expected stderr &&
   rm expected stderr
 "
@@ -170,15 +195,5 @@ test_expect_success "Girdsums files are created in hierarchy" "
   test_cmp expected Girdsums &&
   rm -r expected a Girdsums
 "
-
-# test_expect_success "Can reset the entire directory" "
-#   mkdir -p badgird nogird goodgird &&
-#   touch badgird/Girdsums badgird/file3 nogird/file3 goodgird/file3 &&
-#   echo '03cfd743661f07975fa2f1220c5194cbaff48451  file3' > badgird/Girdsums &&
-#   echo 'da39a3ee5e6b4b0d3255bfef95601890afd80709  file3' > goodgird/Girdsums &&
-#   test_pause &&
-#   gird --reset . &&
-#   rm -r badgird nogird goodgird
-# "
 
 test_done

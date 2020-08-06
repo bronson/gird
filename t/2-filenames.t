@@ -58,17 +58,12 @@ for evilname in \
   "
 
   test_expect_success "Runs on directory named \"$evilname\"" "
-    case \"$evilname\" in
-    -*) : ;;  # gird doesn't support naming directories with leading hyphens on the command line
-    *)
-      mkdir -- \"$evilname\" &&
-      touch -- \"$evilname\"/hello &&
-      gird \"$evilname\" &&
-      echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  hello\" > expected &&
-      (cd -- \"$evilname\" && test_cmp ../expected Girdsums) &&
-      rm -r -- \"$evilname\" expected
-      ;;
-    esac
+    mkdir -- \"$evilname\" &&
+    touch -- \"$evilname\"/hello &&
+    gird -- \"$evilname\" &&
+    echo \"da39a3ee5e6b4b0d3255bfef95601890afd80709  hello\" > expected &&
+    (cd -- \"$evilname\" && test_cmp ../expected Girdsums) &&
+    rm -r -- \"$evilname\" expected
   "
 done
 
