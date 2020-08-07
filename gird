@@ -58,7 +58,8 @@ gird_directory () {
   done
 
   if [ "$mode" != 'resetting' ] && [ -e Girdsums ]; then
-    local differences="$(diff -u Girdsums Girdsums-inprogress)"
+    local differences
+    differences="$(diff -u Girdsums Girdsums-inprogress)"
     rm Girdsums-inprogress
     if [ -n "$differences" ]; then
       die "$(
@@ -87,7 +88,7 @@ detect_abort() {
 
   if [ "$exitcode" != '0' ] || [ -n "$girderr" ]; then
     if [ -n "$should_continue" ]; then
-      let err_count++
+      (( err_count++ ))
     else
       exit "$exitcode"
     fi
@@ -107,8 +108,7 @@ process_path() {
   fi
 
   ( # the presence of stderr determines whether subprocesses ran into an error
-    cd -- "$1" 2>/dev/null
-    if [ $? != 0 ]; then
+    if ! cd -- "$1" 2>/dev/null; then
       echo "$1: does not exist" >&2
       exit 1
     fi
@@ -145,10 +145,10 @@ while [ "$#" -gt 0 ]; do
     --version) echo "Gird $version"; exit;;
     -h|--help) gird_help; exit;;
     --) shift; while [ "$#" -gt 0 ]; do \
-          let arg_count++; "${action}_path" "$1"; shift;
+          (( arg_count++ )); "${action}_path" "$1"; shift;
         done ;;
     -*) echo "unknown option: $1" >&2; exit 1;;
-    *) let arg_count++; "${action}_path" "$1"; shift;;
+    *) (( arg_count++ )); "${action}_path" "$1"; shift;;
   esac
 done
 
