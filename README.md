@@ -152,6 +152,8 @@ cd Photos/Fuji
 gird --reset
 ```
 
+To reset everything and remove all of Gird's files, run: `find Photos -name Girdsums -delete`
+
 ## Testing
 
 The tests use [Sharness](https://github.com/chriscool/sharness). To run them:
