@@ -16,7 +16,7 @@ test_expect_success "Can retrieve the current version" "
 test_expect_success "Can retrieve help" "
   gird --help > stdout &&
   cat "$SHARNESS_TEST_DIRECTORY"/../README.md |
-    sed -n '/\`\`\`txt/,/\`\`\`/p' | sed -e 1d -e '\$d' > helptext &&
+    sed -n '/\`\`\`help/,/\`\`\`/p' | sed -e 1d -e '\$d' > helptext &&
   test_cmp helptext stdout &&
   [ ! -e Girdsums ] &&
   rm helptext stdout

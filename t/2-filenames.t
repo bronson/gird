@@ -30,6 +30,7 @@ for evilname in \
   '$' '*' '&' '<' '>' ';' \
   '-h' \
   '--help' \
+  '--' \
 ; do
 
   slash=
