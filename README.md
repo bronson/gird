@@ -1,30 +1,26 @@
 # Gird
 
+Stores checksums alongside files that you care about and verifies
+that they're valid.
+
 ```txt
 usage: gird [--init|--verify|--reset] [--continue|--abort] [directory ...]
 ```
 
 When you're storing files for a long time, tiny corruptions can add up.
 Gird adds checksums next to each file so those corruptions can be found
-soon after they happen instead of years later by accident.
+soon after they happen instead of years later by accident. If you periodically
+`gird --verify` your files, this ensures your checksums still match.
+And, as a side-effect of reading every byte, the drive might rewrite/reallocate
+any weak sectors it notices.
 
-Gird generates hashes for every file in a directory and stores them in
-a file named Girdsums. All subdirectories are processed too.
-Later, Gird can check these hashes and verify that the contents of
-the files are identical to when they were first girded.
+The checksums are stored in each directory in a file named `Girdsums`.
+The format of this file is identical to the output of the
+[shasum](https://metacpan.org/release/Digest-SHA/source/shasum) command.
 
 ## Installation
 
-Copy the `gird` file somewhere on your path.
-
-## Testing
-
-The tests use [Sharness](https://github.com/chriscool/sharness). To run them:
-
-```bash
-cd t
-make
-```
+Gird is a shellscript. Put the `gird` file somewhere on your path.
 
 ## Usage
 
@@ -39,31 +35,57 @@ gird Photos
 This creates a Girdsums file containing the SHA for each file in Photos.
 It also operates recursively on all subdirectories in the given directory.
 
-In addition to having Gird guess that you intended to initialize the directory,
-you can specify the action explicitly:
+Gird knew that you wanted to initialize the directory because it didn't
+alreay contain a `Girdsums` file. You can also force Gird into this mode
+so it doesn't need to guess:
+
 
 ```bash
-gird --init Photos
+$ gird --init Photos
+initializing Photos/100Canon/2019
+initializing Photos/100Canon/2020
+initializing Photos/100Canon
+initializing Photos
 ```
+
+Running 'gird' without arguments starts in the current directory, identical to typing `gird .`:
+
+```bash
+gird
+```
+
+Gird does process hidden files and directories. It skips files named `.DS_Store`.
 
 ### Verify
 
-To verify checksums, just run the command again.
+To verify your files, just run the `gird` command again.
 Since there's now a Girdsums file in that directory, Gird knows it should
 verify the Girdsums files rather than creating them.
 
 ```bash
-gird Photos
+$ gird Photos
+verifying Photos/100Canon/2019
+verifying Photos/100Canon/2020
+verifying Photos/100Canon
+verifying Photos
+gird complete. no errors.
 ```
 
 Or you can be explicit so Gird will abort if it doesn't find existing checksums:
 
 ```bash
 gird --verify Photos
+...
 ```
 
-Gird normally processes the entire directory (`--continue`). If you are
-doing a quick check and want to abort at the first error, run `gird --abort`.
+### Continue vs. Abort
+
+Gird normally processes everything, even if it encounters errors (`--continue`).
+If you are doing a quick check and want to abort at the first error, specify `--abort`:
+
+```bash
+gird --abort --verify Photos
+```
 
 ### Reset
 
@@ -89,13 +111,6 @@ gird --reset
 
 ### Trivia
 
-Running 'gird' without arguments starts in the current directory, identical to typing `gird .`
-
-```bash
-gird
-```
-
-Gird processes hidden files and directories and skips files named `.DS_Store`.
 
 ## Girdsums File
 
@@ -105,6 +120,15 @@ In addition to using `gird --verify`, you can check Girdsums files by passing th
 
 ```bash
 shasum -c Girdsums
+```
+
+## Testing
+
+The tests use [Sharness](https://github.com/chriscool/sharness). To run them:
+
+```bash
+cd t
+make
 ```
 
 ## Motivation
@@ -162,6 +186,9 @@ Here are some ideas that didn't make the initial cut.
   * Might be easy, just be a feedthrough for `xargs -P`.
     * Except, before computing a Girdsums file, need to ensure all subdirs are complete first.
     * Probably not worth the effort until rewritten in a real programming langauge.
+* If you're initializing, you probably want --abort. If verifying, you probably want --continue.
+  * Because, if there's an error while initializing, continuing will probably thrash uselessly.
+  * Is it worth being smart about deciding to continue? Probably not.
 * Consider using Blake https://blake2.net. It's fast!
 * Look for sharness alternatives. Does Git's native test runner have the same oddball issues?
   * can't use process substitution in a test block

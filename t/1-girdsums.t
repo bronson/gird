@@ -32,6 +32,7 @@ test_expect_success "Multiple directories can be specified" "
   echo verifying a >expected &&
   echo verifying b >>expected &&
   echo verifying c >>expected &&
+  echo gird complete. no errors. >>expected &&
   test_cmp expected stdout &&
   rm -r a b c expected stdout
 "
@@ -147,6 +148,7 @@ test_expect_success "Correctly selects verify starting mode" "
   touch testdir/Girdsums &&
   test_expect_code 1 bash -c 'gird testdir 2>stderr' &&
   echo 'testdir/testdir: missing Girdsums file' > expected &&
+  echo 'gird found 1 problematic directory' >> expected &&
   test_cmp expected stderr &&
   rm -r testdir expected stderr
 "
@@ -170,6 +172,7 @@ test_expect_success "Selects the correct starting mode for each dir" "
   echo initializing initdir >> expected
   echo verifying verifydir/testdir >> expected
   echo verifying verifydir >> expected
+  echo gird complete. no errors. >> expected
   test_cmp expected stdout &&
   test_cmp initdir/Girdsums verifydir/Girdsums &&
   [ ! -f ignoredir/Girdsums ] &&

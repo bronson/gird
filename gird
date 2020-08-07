@@ -7,7 +7,7 @@
 # Run gird again to verify the hashes and ensure the directory contents haven't changed.
 # Gird will not modify an existing Girdsums file unless forced.
 
-version=0.9
+version=0.95
 
 gird_help () {
 cat <<EOL
@@ -154,6 +154,14 @@ done
 
 if [ "$arg_count" -eq 0 ]; then
   "${action}_path" '.'
+fi
+
+if [ -n "$should_continue" ] && [ "$mode" == verifying ]; then
+  if [ "$err_count" == 0 ]; then
+    echo 'gird complete. no errors.'
+  else
+    echo "gird found $err_count problematic director$( [ $err_count = 1 ] && echo 'y' || echo 'ies' )" 1>&2
+  fi
 fi
 
 if [ "$err_count" != '0' ]; then

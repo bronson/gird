@@ -41,6 +41,7 @@ test_expect_success "Can reset a hierarchy" "
   echo 'tt/c/ca/caa: gird verification failed:' > example &&
   echo '-da39a3ee5e6b4b0d3255bfef95601890afd80709  emptyfile' >> example &&
   echo '+55ca6286e3e4f4fba5d0448333fa99fc5a404a73  emptyfile' >> example &&
+  echo 'gird found 1 problematic directory' >> example &&
   test_cmp example stderr &&
   rm -r tt example stderr
 "
