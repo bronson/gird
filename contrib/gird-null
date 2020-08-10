@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Simple benchmark script
+
+# This script runs through the same files and directories that Gird would
+# but, instead of checksumming them, just cats the files to /dev/null.
+# This is the theoretical maximum speed supported by your filesystem.
+
+# For example, girding a particular directory takes 2:22 (142 seconds),
+# while gird-nulling the same directory takes 1:54 (114) seconds.
+# This means that, even if we could drop the time taken by checksumming
+# to 0, we would only go 20% faster.
+
+devnull() {
+  echo "dumping $@"
+  cat "$@" > /dev/null
+}
+export -f devnull
+
+subfind() {
+  echo "reading $1"
+  cd "$1"
+  find . -type f -maxdepth 1 \
+    -not -name Girdsums \
+    -not -name Girdsums-inprogress \
+    -not -name Girdsums-stderr \
+    -not -name .DS_Store \
+    -print0 | sort -z | xargs -0 -I{} bash -c 'devnull "$@"' _ {}
+}
+export -f subfind
+
+find "${1:-.}" -not -path "./.git/*" -not -name .git -type d -d -print0 | \
+  xargs -0 -n1 -I{} bash -c 'subfind "$@"' _ {}
