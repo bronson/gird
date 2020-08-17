@@ -1,0 +1,39 @@
+# Skeleton of a generic release script
+
+# features:
+# - only runs locally, no need for github api
+# - language agnostic; can be used with any project
+# - for simplicity for now: only supports monotonically incrementing
+
+# ./release
+# - add recent commits to an [Unreleased] section of the changelog.
+#   - Unreleased - SHA    so that further invocations won't add duplicate commits
+
+# ./release 1.0.4
+# - if 1.0.4 isn't mentioned in the changelog yet:
+#   - if a 1.0.4 tag exists then that's an error
+#   - ensure 1.0.4 is the highest tag of this series
+#   - find the range of commits and insert them into the changelog
+      range=$(git describe --tags --abbrev=0 2>/dev/null)
+      [ -n "$range ] && prev="$prev..HEAD"
+      git log $range --pretty=format:"* %s"
+#   - update the version number in the shellscript to 1.0.4
+#   - print a message asking to clean up the readme and then run release again
+#
+# - if 1.04 IS mentioned in the changelog, then the user must be ready to go
+#   - show diff to user, ask for confirmation
+#   - commit changes with a 'release 1.0.4' message
+#     - git commit -m "Release version 1.0.0"
+#   - create a 1.0.4 tag
+#     - git tag -a v1.0.0 -m "Relese version 1.0.0"
+#   - push changes and tags
+#     - git push && git push --tags
+#   - update the version number to 1.0.5dev
+
+
+## [1.0](https://github.com/bronson/gird/compare/v0.9...v1.0) - 8 August 2020
+
+
+## [Unreleased]
+
+*

@@ -7,7 +7,7 @@
 # Run gird again to verify the hashes and ensure the directory contents haven't changed.
 # Gird will not modify an existing Girdsums file unless forced.
 
-version=1.0
+version=1.0+
 
 gird_help () {
 cat <<EOL

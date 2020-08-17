@@ -52,9 +52,10 @@ verifying Photos
 gird complete. no errors.
 ```
 
-If it finds that files have changed, it prints the checksums on stderr:
+If it finds that files have changed, it prints the failing checksums on stderr:
 
-```txt
+```bash
+$ gird Photos
 Photos/Phone/OldPics: gird verification failed:
 -82913b8c17eee930cce9422b15273d84eda3c0a0  IMG_20140903.jpg
 +b52791126f96a21a8ba4d511c6f25a1c1eb6dc9e  IMG_20140903.jpg
@@ -125,7 +126,7 @@ gird complete. no errors.
 
 Verify works great on read-only media.
 
-### --continue|--abort
+### --continue | --abort
 
 By default, gird processes every directory, even if it encounters errors (`--continue`).
 If you want to abort at the first error, specify `--abort`:
@@ -170,10 +171,10 @@ If those backups ever disagree, gird allows me to see which file is correct and
 which one is corrupt. Before, I'd have to open the file and try to guess which version
 was correct.
 
-Quick story... In the 1990s I moved my mp3 collection (painstakingly ripped from precions CDs) onto XFS.
-In a few months I started to notice the occasional minor glitch during playback.
+Quick story... In the 1990s I moved my mp3 collection (painstakingly ripped from glittering CDs) onto XFS.
+Occasionally I noticed a minor glitch during playback, a click or a warble.
 I figured it was scheduler or buffer issues: some harmless transient so typical of operating systems back then.
-Over the next 5 years, with the assitance of power outages, XFS randomly inserted strings of null bytes into a few of my files.
+Turns out, over the next 5 years (with the assitance of power outages) XFS randomly inserted strings of null bytes into a few of my files.
 This collection was on three expensive and maxed out 20GB drives so there was no chance of having a backup.
 I didn't discover the corruption until I'd given all my CDs away (and, even if I had, I wasn't about to rip everything again).
 
@@ -198,6 +199,7 @@ Cryptographic integrity is _not_ a design goal.
 
 It uses sha1 because, at least on my computers, sha1 is significantly faster than all other
 preinstalled algorithms, including md5 and cksum.
+One day it may be worth using Blake3 but, right now, even sha1 saturates the SSDs on my computer.
 
 Gird is not interested in error correction. There are other tools for that.
 Gird is meant to be lightweight, allowing you to restore the corrupted files from backups
@@ -207,14 +209,50 @@ the same week they get corrupted.
 
 MIT
 
-## Very Wishlist
+## Wishlist
 
 Here are some ideas that didn't make the initial cut.
 
+* Talk in the README about grafting and splitting directory trees with Gird.
+  * splitting is easy.
+  * grafting requires updating all the Girdsums files above the graft.
+* Questionable directory entries, maybe hard-code to ignore?
+  * .git, .svn, .MISC, .Trashes, .TemporaryItems
+* Add a `gird --restart` that will verify up until we reach one missing or invalid girdfile, then it will switch to gird --init.
+  * That's for when the previous gird --init didn't complete.
+  * And maybe it will just verify that directory contents match the Girdfile and not recompute all the checksums?
+    * Once it hits a missing or incomplete Girdfile, then it switches over to --init.
+  * Is this even necessary when I have gird --reset to restart the process?
+    * It's not great... `gird --reset a/b/bad [b-z]*` misses everything else in b. Oh well!
+* Better progress info (count # of dirs first, then show countdown while processing)
+  * It's easy to count... but I'm not sure how to have find tell the subcommand what index it's on.
+
+* Maybe add a test to ensure similar code snippets in Gird and Contrib are identical.
+  * Once we start getting a lot of scripts in contrib.
 * Maybe make installation easier/better/more explicit
+* Add a .girdignore file that prevents descending into certain subdirectories. (.git. .svn, corruptions, etc)
+  * .girdignore would be girded like any other file in the directory. It would just prune subdirectories.
+  * However right now we dirwalk using one big find command. Switching to shell recursion would be rough.
+  * It can be a good idea to keep your Girdsums files in git. Ignore every file in your .gitignore then add the files you want to track:
+    * But now you need to ignore the .git directory!
+
+```bash
+$ git init
+$ echo '*' > .gitignore
+$ find . -name Girdsums -print0 | xargs -0 git add -f
+```
+
 * Is there any benefit to removing -n1 from xargs and looping ourselves?
+* Remove comments before comparing girdfiles?
+  * but how do we ensure reset doesn't kill user's comments?
+  * It might even be good that any directory is only represented by one exact girdfile.
+  * Add "time to process this directory" as a comment in each girdfile? (worry about reset here)
+    * Absolutely not. This will make the files no longer dependent on directory contents.
+  * Make Gird support the same file reading conventions as shasum (esp. ignoring # comments)
+    * Is this necessary? Maybe girdfiles should be bit-for-bit dependent on directory contents?
 * Maybe add a -j option to fork multiple jobs?
-  * Doesn't seem worth it since a single thread still saturates every SSD I have.
+  * Doesn't seem worth it since a single thread still saturates my SSDs.
+    * Even an infinite speedup would only result in a 20% improvement on my system.
   * Might be easy, just be a feedthrough for `xargs -P`.
     * Except, before computing a Girdsums file, need to ensure all subdirs are complete first.
     * Probably not worth the effort until rewritten in a real programming langauge.
