@@ -44,13 +44,20 @@ gird_directory () {
   fi
 
   echo "$mode $showpath"
+  touch Girdsums-inprogress
   # add the files in the current directory
   find . -maxdepth 1 -type f \
     -not -name Girdsums \
     -not -name Girdsums-inprogress \
+    -not -name Girdsums-files \
     -not -name Girdsums-stderr \
     -not -name .DS_Store \
-    -print0 | sort -z | xargs -0 shasum -a 1 | sed 's| ./| |' > Girdsums-inprogress
+    -print0 | sort -z > Girdsums-files
+  if [ -s Girdsums-files ]; then
+    xargs -0 shasum -a 1 < Girdsums-files | sed 's| ./| |' >> Girdsums-inprogress
+  fi
+  rm Girdsums-files
+
   # add Girdsums files in subdirectories
   for file in */Girdsums; do
     [ -e "$file" ] || continue # bash returns the unexpanded string when no files match
