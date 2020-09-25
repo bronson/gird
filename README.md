@@ -205,6 +205,10 @@ Gird is not interested in error correction. There are other tools for that.
 Gird is meant to be lightweight, allowing you to restore the corrupted files from backups
 the same week they get corrupted.
 
+## Alternatives
+
+* [fs-verty](https://www.kernel.org/doc/html/latest/filesystems/fsverity.html) (if you're using ext4 on Linux)
+
 ## Licese
 
 MIT
@@ -263,7 +267,7 @@ $ find . -name Girdsums -print0 | xargs -0 git add -f
   * the test-results directory is out of hand. is this sharness's fault?
   * The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
     * played with this a bit but it was rubbing sharness the wrong way. Prob not worth the time.
-  * is there an easy way to have each test_expect_success to run in its own subdirectory?
+  * is there an easy way to have each test\_expect\_success to run in its own subdirectory?
     * right now, an aborted test early in the file causes a cascade of meaningless failures
   * poor documentation on how to write tests
   * seems to run my tests unders zsh even though /bin/sh is bash.
