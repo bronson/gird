@@ -1,34 +1,34 @@
 # Gird
 
-Stores checksums alongside files that you care about and verifies
-that they're valid.
+Stores checksums alongside the files that you care about and verifies that they're valid.
 
 ```help
 usage: gird [--init|--verify|--reset] [--continue|--abort] [directory ...]
 ```
 
-When you're storing files for a long time, tiny corruptions can add up.
-`gird --init` adds checksums next to your files so corruptions can be found and corrected.
-
-Later, when you periodically `gird --verify` your files, every checksum is verified.
-If you find a failure, you know the corruption happened only since the last time you
-ran gird. And, as a side-effect of reading every byte, the drive will hopefully
-reallocate any weak sectors that it finds.
+When you're storing files for a long time, tiny corruptions add up.
+`gird --init` adds checksums next to your files, and `gird --verify` ensures the checksums are still correct. IF you periodically verify your girded files, you'll know right when a corruption has happened. And, as a side-effect of reading every byte, the storage media should reallocate any weak sectors that it finds.
 
 ## Installation
 
 Gird is a shellscript. Put the `gird` file somewhere on your path.
 
-## Introduction
+## Usage
 
-Let's generate checksums for a directory named `Photos` which contains 3 jpegs and 2 subdirectories:
+Start by checksumming your files.
+
+### Create Checksums
+
+Start by generating checksums for a directory. In this case the directory is named `Photos` and contains 3 jpegs and 2 subdirectories:
 
 ```bash
-gird Photos
+cd Photos
+gird
 ```
 
-This will produce Girdsums files in this directory and all subdirectories.
-The topmost Girdsums file will look something like this:
+Now every subdirectory will contain a Girdsums file, and every file will have its signature stored in a Girdsums file.
+
+The topmost Girdsums will look something like this:
 
 ```txt
 b7c51ea62c94d3788305110d60e5ca9ea5664a4e  DSCF1177.JPG
@@ -38,10 +38,11 @@ eb1625a3241cb805078c8741cfafcdd0829bd825  DSCF1203.JPG
 afd9f6e638528d7fbd7d2cc8319469fbba8b2737  101_Fuji/Girdsums
 ```
 
-The bottom two lines checksum the Girdsums files in subdirectories
-even if entire directories disappear, Gird will still notice and complain.
+Those last to lines ensure that subirectories are checksummed too. Even if entire directories disappear, Gird will notice and complain.
 
-Now, periodically verify your files by running the gird command again:
+### Verify Checksums
+
+Periodically verify your files by running the gird command again:
 
 ```bash
 $ gird Photos
@@ -62,9 +63,11 @@ Photos/Phone/OldPics: gird verification failed:
 gird found 1 problematic directory
 ```
 
-And now you know what files need to be replaced from backup.
+Now you know which files need to be replaced from backup.
 
-You can also verify your Girdsums files without using Gird at all:
+#### Verifying Without Gird
+
+You can also verify a Girdsums files without even using Gird at all:
 
 ```bash
 shasum -c Girdsums
@@ -93,10 +96,8 @@ gird
 ### --init
 
 If the specified directory doesn't already have a Girdsums file, then
-Gird goes into initialize mode and creates Girdsums files for the
+gird assumes `--init` and creates Girdsums files for the
 directory and all its subdirectories.
-
-You can also be explicit:
 
 ```bash
 $ gird --init Photos
@@ -106,14 +107,14 @@ initializing Photos/100Canon
 initializing Photos
 ```
 
+When that finishes, every directory will contain a Girdsums file.
+
 Gird does process hidden files and directories, but it skips files named `.DS_Store` (thanks Apple...).
 
 ### --verify
 
 If the specified directory already has a Girdsums file in it, then
-Gird verifies the whole hierarchy.
-
-You can also be explicit:
+Gird verifies everything.
 
 ```bash
 $ gird --verify Photos
@@ -124,12 +125,12 @@ verifying Photos
 gird complete. no errors.
 ```
 
-Verify works great on read-only media.
+Verify works on read-only media.
 
 ### --continue | --abort
 
 By default, gird processes every directory, even if it encounters errors (`--continue`).
-If you want to abort at the first error, specify `--abort`:
+If you want to run a quick check and abort at the first error, specify `--abort`:
 
 ```bash
 gird --abort --verify Photos
@@ -153,7 +154,13 @@ cd Photos/Fuji
 gird --reset
 ```
 
-To reset everything and remove all of Gird's files, run: `find Photos -name Girdsums -delete`
+### Reset All
+
+To remove all of Gird's files and return the directory to as if Gird had never been run at all, run:
+
+```bash
+find Photos -name Girdsums -delete
+```
 
 ## Testing
 
@@ -167,43 +174,38 @@ make
 ## Motivation
 
 I have backups stored in a number of places: local drive, offsite USB drive, and cloud.
-If those backups ever disagree, gird allows me to see which file is correct and
-which one is corrupt. Before, I'd have to open the file and try to guess which version
-was correct.
+If those backups ever disagree, gird knows which file is correct and
+which one is corrupt. Before, I'd open the file and scroll around trying to guess which version was the most pristine.
 
-Quick story... In the 1990s I moved my mp3 collection (painstakingly ripped from glittering CDs) onto XFS.
-Occasionally I noticed a minor glitch during playback, a click or a warble.
-I figured it was scheduler or buffer issues: some harmless transient so typical of operating systems back then.
-Turns out, over the next 5 years (with the assitance of power outages) XFS randomly inserted strings of null bytes into a few of my files.
+Quick story... In the 1990s I moved my mp3 collection (ripped from glittering CDs) onto XFS. Occasionally there would be a minor glitch during playback, a click or a warble or something.
+Figured it was scheduler or buffer issues: some harmless transient that infested operating systems of those days.
+Over the next 5 years, with the assitance of surprise power outages, XFS randomly inserted strings of null bytes into a number of these files.
 This collection was on three expensive and maxed out 20GB drives so there was no chance of having a backup.
-I didn't discover the corruption until I'd given all my CDs away (and, even if I had, I wasn't about to rip everything again).
 
-If I'd had Gird, it would have told me when the first corruption showed up, and I could
-have immediately investigated the issue and replaced only that file.
+If I'd had Gird, it would have told me when the first corruption showed up, and I could have just re-ripped that CD.
 
 _But doesn't ZFS already have checksumming?_
 
-Yes! And it's great if you can use it. But second opinions are always welcome.
-Gird is a narrow set of suspenders in your multiplatform belt-and-suspenders setup.
+Yes! And ZFS is great if it's available. But second opinions are always welcome.
+Gird is a narrow set of suspenders in your platform agnostic belt-and-suspenders setup.
 
 _Isn't this basically what Git does?_
 
-Gird checksums subdirectories and creates a DAG of trust, similar to Git.
-However, git also duplicates the full contents of the files, which is a huge burden.
+Yes, Gird checksums subdirectories and creates a DAG of trust, similar to how Git works.
+However, git also duplicates the full contents of the files.
 Gird is meant for environments where the files are gigantic and the backups are offsite.
 
 ## Thoughts
 
 Gird is intended to protect against driver bugs and cosmic rays.
-Cryptographic integrity is _not_ a design goal.
+Cryptographic integrity is not a design goal.
 
 It uses sha1 because, at least on my computers, sha1 is significantly faster than all other
 preinstalled algorithms, including md5 and cksum.
-One day it may be worth using Blake3 but, right now, even sha1 saturates the SSDs on my computer.
+One day it may be worth using Blake3 but, right now, even sha1 saturates my SSDs.
 
-Gird is not interested in error correction. There are other tools for that.
-Gird is meant to be lightweight, allowing you to restore the corrupted files from backups
-the same week they get corrupted.
+Gird is not interested in error correction. There are other tools if you're interested in that rabbit hole.
+Gird is meant to be lightweight, allowing you to use it without a second thought, and assumes you'll restore the corrupted files from backups.
 
 ## Alternatives
 
@@ -218,8 +220,8 @@ MIT
 Here are some ideas that didn't make the initial cut.
 
 * Talk in the README about grafting and splitting directory trees with Gird.
-  * splitting is easy.
-  * grafting requires updating all the Girdsums files above the graft.
+  * splitting is easy, just do it.
+  * grafting requires updating all the Girdsums files from the graft out to the root.
 * Questionable directory entries, maybe hard-code to ignore?
   * .git, .svn, .MISC, .Trashes, .TemporaryItems
 * Add a `gird --restart` that will verify up until we reach one missing or invalid girdfile, then it will switch to gird --init.
@@ -239,42 +241,43 @@ Here are some ideas that didn't make the initial cut.
   * However right now we dirwalk using one big find command. Switching to shell recursion would be rough.
   * It can be a good idea to keep your Girdsums files in git. Ignore every file in your .gitignore then add the files you want to track:
     * But now you need to ignore the .git directory!
-
 ```bash
 $ git init
 $ echo '*' > .gitignore
 $ find . -name Girdsums -print0 | xargs -0 git add -f
 ```
-
+  * Nah, doesn't seem worth it. Storing Girdfiles in git doesn't actually buy you much.
 * Is there any benefit to removing -n1 from xargs and looping ourselves?
 * Remove comments before comparing girdfiles?
   * but how do we ensure reset doesn't kill user's comments?
-  * It might even be good that any directory is only represented by one exact girdfile.
+  * It's probably good that any directory is only represented by one exact girdfile.
   * Add "time to process this directory" as a comment in each girdfile? (worry about reset here)
     * Absolutely not. This will make the files no longer dependent on directory contents.
   * Make Gird support the same file reading conventions as shasum (esp. ignoring # comments)
     * Is this necessary? Maybe girdfiles should be bit-for-bit dependent on directory contents?
 * Maybe add a -j option to fork multiple jobs?
   * Doesn't seem worth it since a single thread still saturates my SSDs.
-    * Even an infinite speedup would only result in a 20% improvement on my system.
+    * Even if I could make Gird infinitely fast, that would only result in a 20% improvement on my system.
   * Might be easy, just be a feedthrough for `xargs -P`.
     * Except, before computing a Girdsums file, need to ensure all subdirs are complete first.
     * Probably not worth the effort until rewritten in a real programming langauge.
 * Consider using Blake https://blake2.net. It's fast! And now Blake3 is faster!
 * Look for alternatives to sharness. Does Git's native test runner have the same oddball issues?
-  * can't use process substitution in a test block
-  * test block errors are very wrong: `sharness.sh: eval: line 383: syntax error`
-  * the test-results directory is out of hand. is this sharness's fault?
-  * The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
-    * played with this a bit but it was rubbing sharness the wrong way. Prob not worth the time.
-  * is there an easy way to have each test\_expect\_success to run in its own subdirectory?
-    * right now, an aborted test early in the file causes a cascade of meaningless failures
-  * poor documentation on how to write tests
-  * seems to run my tests unders zsh even though /bin/sh is bash.
-    * `SHELL=/bin/bash bash 02-test.t -v` seems to force bash.
-    * Or maybe it's that sometimes it's invoked as /bin/bash (prove) and sometimes as /bin/sh (make)
-  * Some tests succeed when run in bash but fail when run in prove.
-    * See 02-filenames.t for a heinous workaround.
-  * sharness doesn't support --stress?
-  * `make watch` should store its tmpdir somewhere else so it's possible to still run tests manually
-  * Why does `prove *.t` show "Dubious, test returned 1 (wstat 256, 0x100)" instead of "fail"?
+  * Yes, it has a lot of them. I now think Git's testing infrastructure should remain in git and I should find a better test runner for Bash.
+  * Sharness Oddities:
+    * can't use process substitution in a test block
+    * test block errors are very wrong: `sharness.sh: eval: line 383: syntax error`
+    * the test-results directory is out of hand. is this sharness's fault?
+    * The .t extension appears to be reserved for Perl. Maybe use .sh like Git does, or just .test?
+      * played with this a bit but it was rubbing sharness the wrong way. Prob not worth the time.
+    * is there an easy way to have each test\_expect\_success to run in its own subdirectory?
+      * right now, an aborted test early in the file causes a cascade of meaningless failures
+    * poor documentation on how to write tests
+    * seems to run my tests unders zsh even though /bin/sh is bash.
+      * `SHELL=/bin/bash bash 02-test.t -v` seems to force bash.
+      * Or maybe it's that sometimes it's invoked as /bin/bash (prove) and sometimes as /bin/sh (make)
+    * Some tests succeed when run in bash but fail when run in prove.
+      * See 02-filenames.t for a heinous workaround.
+    * sharness doesn't support --stress?
+    * `make watch` should store its tmpdir somewhere else so it's possible to still run tests manually
+    * Why does `prove *.t` show "Dubious, test returned 1 (wstat 256, 0x100)" instead of "fail"?
