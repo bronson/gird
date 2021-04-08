@@ -230,11 +230,19 @@ A Sea for Yourself.transcode.mkv
   * Turns out find isn't the only bash nightmare. Sort is too.
   * This is the final straw. Gird absolutely needs to be written in a proper programming language.
 * The commands should be `gird add *`, `gird rm *`, `gird scan` (metadata only), `gird check/verify` (full file contents)
+* Allow using a single Girdsums file that's not on the filesystem being girded.
+  * How else will you gird a read-only directory (that can't temporarily be made read/write)
+  * In some situations I don't want to inject Girdsums into the files being girded.
+  * So, by default, Girdsums will be one flat file per directory.
+    * But, you can tell Gird to drop all the girdsums in a single file in the root directory.
+  * A girded hierarchy can use both styles interchangeably.
+  * Therefore, gird should search back up to the root filesystem looking for a deep Girdfile before assuming scattered.
 * Bash is now getting really constrictive... it's past time to write in a different language.
 * Maybe `gird --add` should be a synonym for `gird --init` and `gird --reset`.
   * "Here, I want you to add this directory to everything being girded"
 * Have a way to verify just the hierarchy, not the checksums.
 * Have a graft command? Or is --reset adequate? Maybe everything gets subsumed by --add.
+  * Not needed. `gird add` and `gird remove` should automatically graft too.
 * Talk in the README about grafting and splitting directory trees with Gird.
   * splitting is easy, just do it.
   * grafting requires updating all the Girdsums files from the graft out to the root.
