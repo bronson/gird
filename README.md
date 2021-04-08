@@ -219,18 +219,10 @@ MIT
 
 Here are some ideas that didn't make the initial cut.
 
-* Bug: Linux often sorts wrong. This makes generating a canonical Girdsums file extremely difficult.
-  * For example, it thinks this is the correct sort order.
-```txt
-A_SEA_FOR_YOURSELF.m4v
-A Sea for Yourself.transcode.mkv
-```
-  * Sorting '\_' above ' ' seems bonkers.
-  * Yes I could `LC_ALL=C sort ...` but that doesn't cover everything.
-  * Turns out find isn't the only bash nightmare. Sort is too.
-  * This is the final straw. Gird absolutely needs to be written in a proper programming language.
 * The commands should be `gird add *`, `gird rm *`, `gird scan` (metadata only), `gird check/verify` (full file contents)
+* Add a --quick flag that checks only metadata and assumes the checksums all match.
 * Allow using a single Girdsums file that's not on the filesystem being girded.
+  * `gird --file=/tmp/Photos.gird ~/Photos` <-- creates a single deep girdfile
   * How else will you gird a read-only directory (that can't temporarily be made read/write)
   * In some situations I don't want to inject Girdsums into the files being girded.
   * So, by default, Girdsums will be one flat file per directory.
@@ -238,6 +230,8 @@ A Sea for Yourself.transcode.mkv
   * A girded hierarchy can use both styles interchangeably.
   * Therefore, gird should search back up to the root filesystem looking for a deep Girdfile before assuming scattered.
 * Bash is now getting really constrictive... it's past time to write in a different language.
+  * the inconsistencies in find and sort and dash vs bash vs zsh are just about unsolvable.
+* Add a --convert command that quickly converts exploded Girdfiles to single and back.
 * Maybe `gird --add` should be a synonym for `gird --init` and `gird --reset`.
   * "Here, I want you to add this directory to everything being girded"
 * Have a way to verify just the hierarchy, not the checksums.
