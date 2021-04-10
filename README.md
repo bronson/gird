@@ -232,6 +232,9 @@ Here are some ideas that didn't make the initial cut.
 * Bash is now getting really constrictive... it's past time to write in a different language.
   * the inconsistencies in find and sort and dash vs bash vs zsh are just about unsolvable.
 * Add a --convert command that quickly converts exploded Girdfiles to single and back.
+* Add a --watch command that will watch you reorganize a directory and continually keep Girdfiles up to date.
+  * It happily follows all your mvs, renames, deletes, etc.
+  * But if it sees any _contents_ of files change, it flips the f out.
 * Maybe `gird --add` should be a synonym for `gird --init` and `gird --reset`.
   * "Here, I want you to add this directory to everything being girded"
 * Have a way to verify just the hierarchy, not the checksums.
