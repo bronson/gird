@@ -177,16 +177,16 @@ I have backups stored in a number of places: local drive, offsite USB drive, and
 If those backups ever disagree, gird knows which file is correct and
 which one is corrupt. Before, I'd open the file and scroll around trying to guess which version was the most pristine.
 
-Quick story... In the 1990s I moved my mp3 collection (ripped from glittering CDs) onto XFS. Occasionally there would be a minor glitch during playback, a click or a warble or something.
+Quick story... In the 1990s I moved my mp3 collection onto XFS. Occasionally there would be a minor glitch during playback, a click or a warble or something.
 Figured it was scheduler or buffer issues: some harmless transient that infested operating systems of those days.
-Over the next 5 years, with the assitance of surprise power outages, XFS randomly inserted strings of null bytes into a number of these files.
+Over the next 5 years, with the assitance of PG&E's unreliable power, XFS randomly inserted strings of null bytes into a number of these files.
 This collection was on three expensive and maxed out 20GB drives so there was no chance of having a backup.
 
 If I'd had Gird, it would have told me when the first corruption showed up, and I could have just re-ripped that CD.
 
 _But doesn't ZFS already have checksumming?_
 
-Yes! And ZFS is great if it's available. But second opinions are always welcome.
+Yes! And ZFS is great if it's available [and bug-free](https://github.com/openzfs/zfs/issues/15526). But second opinions are always welcome.
 Gird is a narrow set of suspenders in your platform agnostic belt-and-suspenders setup.
 
 _Isn't this basically what Git does?_
