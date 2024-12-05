@@ -120,7 +120,7 @@ process_path() {
       exit 1
     fi
     set -o pipefail
-    find . -depth -type d -print0 | xargs -0 -n1 -I{} bash -c 'gird_directory "$@"' _ {}
+    find . -depth -type d -print0 | xargs -0 -I{} bash -c 'gird_directory "$@"' _ {}
   ) 2>Girdsums-stderr
 
   detect_abort "$?" Girdsums-stderr
