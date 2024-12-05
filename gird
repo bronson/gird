@@ -54,14 +54,14 @@ gird_directory () {
     -not -name .DS_Store \
     -print0 | LC_ALL=C sort -z > Girdsums-files
   if [ -s Girdsums-files ]; then
-    xargs -0 shasum -a 1 < Girdsums-files | sed 's| ./| |' >> Girdsums-inprogress
+    xargs -0 $shacmd < Girdsums-files | sed 's| ./| |' >> Girdsums-inprogress
   fi
   rm Girdsums-files
 
   # add Girdsums files in subdirectories
   for file in */Girdsums; do
     [ -e "$file" ] || continue # bash returns the unexpanded string when no files match
-    shasum -a 1 -- "$file" >> Girdsums-inprogress
+    $shacmd "$file" >> Girdsums-inprogress
   done
 
   if [ "$mode" != 'resetting' ] && [ -e Girdsums ]; then
@@ -141,6 +141,18 @@ arg_count=0 # number of arguments processed
 err_count=0 # number of errors encountered (where --abort would exit immediately)
 should_continue=1 # '' means abort if we find an error, '1' means keep processing
 action='process'
+
+# if [ -z "$shacmd" ]; then
+  if command -v sha1sum >/dev/null 2>&1; then
+    shacmd=sha1sum
+  elif command -v shasum >/dev/null 2>&1; then
+    shacmd="shasum --"
+  else
+    echo "shasum or sha1sum command not found!"
+    exit
+  fi
+# fi
+export shacmd
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
