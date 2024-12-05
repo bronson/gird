@@ -2,7 +2,7 @@
 
 test_description="Ensures the reset feature works"
 
-. sharness.sh
+. ./sharness.sh
 
 # ensures a simple reset works
 test_expect_success "Can reset a single path" "

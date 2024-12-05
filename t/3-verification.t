@@ -2,7 +2,7 @@
 
 test_description="Ensures gird can verify its own output"
 
-. sharness.sh
+. ./sharness.sh
 
 test_expect_success "Aborts when it finds an inprogress file" "
   touch Girdsums-inprogress &&

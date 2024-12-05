@@ -2,7 +2,7 @@
 
 test_description="Ensures recursive checksumming works"
 
-. sharness.sh
+. ./sharness.sh
 
 test_expect_success "Simple recursive checksum" "
   cp -r "$SHARNESS_TEST_DIRECTORY/fixtures/test-tree" . &&

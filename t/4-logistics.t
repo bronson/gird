@@ -2,7 +2,7 @@
 
 test_description="Ensures the busywork gets done"
 
-. sharness.sh
+. ./sharness.sh
 
 test_expect_success "Can retrieve the current version" "
   gird --version > stdout &&

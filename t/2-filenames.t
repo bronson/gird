@@ -6,7 +6,7 @@ test_description="Ensures we can handle bizarre file and directory names"
 # Because Gird is used in archive environments with bizarrely-named files,
 # it needs to get this right.
 
-. sharness.sh
+. ./sharness.sh
 
 # Somehow it depends on whether we're invoked as /bin/sh or /bin/bash.
 #   (prove and `make test` both seem to invoke the script as /bin/sh)
