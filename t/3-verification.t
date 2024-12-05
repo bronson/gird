@@ -4,6 +4,15 @@ test_description="Ensures gird can verify its own output"
 
 . ./sharness.sh
 
+if command -v sha1sum >/dev/null 2>&1; then
+  shacmd=sha1sum
+elif command -v shasum >/dev/null 2>&1; then
+  shacmd=shasum
+else
+  echo "shasum or sha1sum command not found!"
+  exit
+fi
+
 test_expect_success "Aborts when it finds an inprogress file" "
   touch Girdsums-inprogress &&
   touch empty &&
@@ -65,7 +74,7 @@ test_expect_success "Girds Girdsum files one directory deeper" "
   gird --verify . &&
   grep deep-tree/Girdsums Girdsums &&
   grep dirone/Girdsums deep-tree/Girdsums &&
-  shasum -c Girdsums &&
+  $shacmd -c Girdsums &&
   rm -r deep-tree
 "
 

@@ -8,31 +8,23 @@ test_description="Ensures we can handle bizarre file and directory names"
 
 . ./sharness.sh
 
-# Somehow it depends on whether we're invoked as /bin/sh or /bin/bash.
-#   (prove and `make test` both seem to invoke the script as /bin/sh)
-# I'm not sure if this is a bug in my code, sharness, or prove.
 shellslash='\\'
-if [[ "$(ps -o command $$ | tail -1)" == '/bin/sh '* ]]; then
-  # we were invoked as /bin/sh instead of /bin/bash
+if [ "$BASH_VERSINFO" == 3 ]; then
+  # not sure why but this lets things work on Macs
   shellslash='\\\\'
 fi
 
-for evilname in \
-  " a b   c " \
-  "'a'" \
-  '\"a\"' \
-  '\\\"' \
-  "\\\'" \
-  '\$f' \
-  '\\\$f' \
-  'a;b>c|d&&e' \
-  'e()f#g!h@i?' \
-  '$' '*' '&' '<' '>' ';' \
-  '-h' \
-  '--help' \
-  '--' \
-; do
+if command -v sha1sum >/dev/null 2>&1; then
+  shacmd=sha1sum
+elif command -v shasum >/dev/null 2>&1; then
+  shacmd=shasum
+else
+  echo "shasum or sha1sum command not found!"
+  exit
+fi
 
+
+check_evilname() {
   slash=
   if [[ "$evilname" = \\\\* ]]; then
     # a backslash at the start of the sha indicates the filename needs
@@ -45,7 +37,7 @@ for evilname in \
     gird &&
     echo \"${slash}da39a3ee5e6b4b0d3255bfef95601890afd80709  $slash$evilname\" > expected &&
     test_cmp expected Girdsums &&
-    shasum -c Girdsums &&
+    $shacmd -c Girdsums &&
     rm -- expected \"$evilname\" Girdsums
   "
 
@@ -66,7 +58,36 @@ for evilname in \
     (cd -- \"$evilname\" && test_cmp ../expected Girdsums) &&
     rm -r -- \"$evilname\" expected
   "
+}
+
+
+
+for evilname in \
+  " a b   c " \
+  "'a'" \
+  '\"a\"' \
+  '\\\"' \
+  "\\\'" \
+  '\$f' \
+  '\\\$f' \
+  'a;b>c|d&&e' \
+  'e()f#g!h@i?' \
+  '$' '*' '&' '<' '>' ';' \
+; do
+  check_evilname "$evilname"
 done
+
+if [ "$shacmd" -ne "sha1sum" ]; then
+  # sha1sum will fail these tests. It doesn't offer '--'
+  # or any way for it to distinguish filenames from arguments.
+  for evilname in \
+    '-h' \
+    '--help' \
+    '--' \
+  ; do
+    check_evilname "$evilname"
+  done
+fi
 
 test_done
 
